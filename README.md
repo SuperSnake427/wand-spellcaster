@@ -70,11 +70,11 @@ Keys:
 |-------|--------|
 | `m`   | show the detection mask — tune until **only** the tip is white |
 | `p`   | (colour mode) hover over the lit tip and press to auto-sample its colour |
-| `[` `]` | (brightness mode) lower / raise the brightness threshold |
+| `[` `]` | brightness threshold (normal) / pick the spell to record (record mode) |
 | `l`   | (colour mode) learn the tip colour by light off/on difference |
 | `g`   | toggle the motion gate |
 | `b`   | toggle colour / brightness tracking mode |
-| `r`   | record a sample: type the spell key in the console, then draw it once |
+| `r`   | toggle **record mode** — draw to add samples for the selected spell |
 | `t`   | toggle mouse test mode |
 | `c`   | clear the current trail |
 | `h`   | toggle help / spell list |
@@ -121,9 +121,16 @@ only do this once (re-run it if you change wands or the room lighting).
 ### Record real samples (recommended)
 
 The built-in shapes work, but samples drawn with the **actual wand, camera, and
-hand** match far better. Press `r`, type a spell key (e.g. `lumos`), draw it, and
-it's saved to `templates.json` and used immediately. Record 3–5 samples per
-spell for best results.
+hand** match far better. It's all in-window:
+
+1. Press **`r`** to enter record mode — a red **REC** bar appears.
+2. Use **`[`** / **`]`** to pick the spell to record (shown in the bar).
+3. **Draw it** — every stroke adds a sample (no spell fires while recording);
+   the bar shows the running count.
+4. Press **`r`** again to stop.
+
+Record 3–5 samples per spell for best results. They're saved to `templates.json`
+and used immediately.
 
 ## The spells
 

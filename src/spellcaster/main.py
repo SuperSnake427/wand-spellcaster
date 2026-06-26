@@ -18,7 +18,6 @@ Keys
   space        toggle PRESENTATION mode (themed background, no dev text)
   f            toggle fullscreen
 """
-import threading
 import time
 from typing import Any
 
@@ -97,8 +96,8 @@ class App:
         self.fullscreen = config.FULLSCREEN
         self.background = hud.load_background(
             config.BACKGROUND_IMAGE, (config.DISPLAY_WIDTH, config.DISPLAY_HEIGHT))
-        self.record_key = None          # spell key armed for recording
-        self._record_prompt_active = False
+        self.recording = False          # in-window record mode (toggle with 'r')
+        self.record_target = 0          # index into spellbook.SPELLS being recorded
         self.banner = None              # (text, color, expire_time)
         self.last_trail = []            # keep last stroke visible briefly
         self.last_trail_until = 0.0
@@ -107,6 +106,18 @@ class App:
         self._fps_t = time.time()
         self._fps_n = 0
         self._dead_frames = 0
+
+    @property
+    def record_key(self) -> str | None:
+        """
+        The spell key currently being recorded, or None when not recording.
+
+        Returns:
+            - The target spell's key while in record mode, else None.
+        """
+        if self.recording:
+            return spellbook.SPELLS[self.record_target]["key"]
+        return None
 
     def _window_size(self) -> tuple[int, int]:
         """
@@ -249,17 +260,14 @@ class App:
         self.last_trail = stroke
         self.last_trail_until = now + 1.5
 
-        if self.record_key:
-            # Recording stays armed: every stroke saves another sample for the
-            # same spell (recognition/effects are suppressed) until 'r' stops it.
-            spellbook.save_sample(config.TEMPLATES_FILE, self.recorded,
-                                  self.record_key, stroke)
-            self.recognizer.add_template(self.record_key, stroke)
-            spell = spellbook.get(self.record_key)
-            label = spell["name"] if spell else self.record_key
-            count = len(self.recorded.get(self.record_key, []))
-            self.banner = (f"REC {label}: {count} saved  (press 'r' to stop)",
-                           (120, 255, 120), now + 2.5)
+        if self.recording:
+            # In record mode every stroke saves a sample for the selected spell;
+            # recognition and effects are suppressed until you press 'r'.
+            key = spellbook.SPELLS[self.record_target]["key"]
+            spellbook.save_sample(config.TEMPLATES_FILE, self.recorded, key, stroke)
+            self.recognizer.add_template(key, stroke)
+            count = len(self.recorded.get(key, []))
+            self.banner = (f"REC {key}: {count} saved", (120, 255, 120), now + 2.0)
             return
 
         name, score = self.recognizer.recognize(stroke)
@@ -326,6 +334,9 @@ class App:
             hud.draw_swatch(canvas, self.swatch_color)       # trained colour block
         if self.cal_info:
             hud.draw_calibration(canvas, self.cal_info)
+        if self.recording:
+            key = spellbook.SPELLS[self.record_target]["key"]
+            hud.draw_record_overlay(canvas, key, len(self.recorded.get(key, [])))
         return canvas
 
     def _update_fps(self, now: float) -> None:
@@ -371,17 +382,23 @@ class App:
             self.gesture.active = False
             self.last_trail = []
         elif key == ord("["):
-            self._nudge_floor(-5)
-        elif key == ord("]"):
-            self._nudge_floor(+5)
-        elif key == ord("r"):
-            if self.record_key is not None:
-                print(f"[record] stopped recording '{self.record_key}'")
-                self.banner = (f"recording stopped: {self.record_key}",
-                               (180, 180, 180), time.time() + 1.5)
-                self.record_key = None
+            if self.recording:
+                self.record_target = (self.record_target - 1) % len(spellbook.SPELLS)
             else:
-                self._arm_record()
+                self._nudge_floor(-5)
+        elif key == ord("]"):
+            if self.recording:
+                self.record_target = (self.record_target + 1) % len(spellbook.SPELLS)
+            else:
+                self._nudge_floor(+5)
+        elif key == ord("r"):
+            self.recording = not self.recording
+            tgt = spellbook.SPELLS[self.record_target]["key"]
+            if self.recording:
+                print(f"[record] recording '{tgt}' — draw to add samples; "
+                      "[ / ] change spell; r to stop")
+            else:
+                print(f"[record] stopped ('{tgt}')")
         elif key == ord("p"):
             self._sample_color()
         elif key == ord("g"):
@@ -594,36 +611,6 @@ class App:
         blob_min = max(5, int(area * 0.30))
         blob_max = int(area * 5)
         return area, blob_min, blob_max
-
-    def _arm_record(self) -> None:
-        """
-        Ask (on a background thread) which spell to record next.
-
-        The console prompt runs OFF the main loop so the OpenCV window keeps
-        refreshing and stays responsive while you type the spell key -- a
-        blocking input() here would freeze the window.
-        """
-        if self._record_prompt_active:
-            return
-        keys = ", ".join(s["key"] for s in spellbook.SPELLS)
-        print(f"\n[record] available spell keys: {keys}")
-        self._record_prompt_active = True
-        threading.Thread(target=self._read_record_key, daemon=True).start()
-
-    def _read_record_key(self) -> None:
-        """Blocking console read (background thread) that arms ``record_key``."""
-        try:
-            entered = input("[record] type the spell key to record, "
-                            "then draw it once: ").strip()
-        except (EOFError, KeyboardInterrupt):
-            entered = ""
-        if spellbook.get(entered):
-            self.record_key = entered
-            print(f"[record] recording '{entered}': draw it as many times as "
-                  "you like; press 'r' in the window to stop.")
-        elif entered:
-            print(f"[record] unknown key '{entered}', cancelled.")
-        self._record_prompt_active = False
 
     def _shutdown(self) -> None:
         """Release the camera, clean up effects, and close all windows."""

@@ -267,3 +267,23 @@ def draw_reticle(canvas: np.ndarray, mouse_pos: tuple[int, int] | None,
         cv2.circle(canvas, (lx, ly), 8, (255, 255, 255), 1, cv2.LINE_AA)
         cv2.putText(canvas, "sampled here", (lx + 12, ly + 5),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.48, (0, 255, 80), 1, cv2.LINE_AA)
+
+
+def draw_record_overlay(canvas: np.ndarray, key: str, count: int) -> None:
+    """
+    Draw the persistent record-mode banner (shown in dev and presentation mode).
+
+    Parameters:
+        - canvas: The display canvas to draw on (modified in place).
+        - key: The spell key currently being recorded.
+        - count: How many samples are saved for it so far.
+    """
+    h, w = canvas.shape[:2]
+    bar = max(40, h // 12)
+    strip = canvas.copy()
+    cv2.rectangle(strip, (0, 0), (w, bar), (30, 30, 170), -1)   # red strip (BGR)
+    cv2.addWeighted(strip, 0.8, canvas, 0.2, 0, canvas)
+    fs = bar / 46.0
+    text = f"REC  {key.upper()}   {count} saved      [ / ] spell    r = stop"
+    cv2.putText(canvas, text, (18, int(bar * 0.66)), cv2.FONT_HERSHEY_DUPLEX,
+                fs, (255, 255, 255), max(1, round(fs)), cv2.LINE_AA)
