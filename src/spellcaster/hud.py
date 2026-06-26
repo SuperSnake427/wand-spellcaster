@@ -178,9 +178,11 @@ def draw_chrome(canvas: np.ndarray, tracker: WandTracker, *,
                 (0, 255, 0), 2, cv2.LINE_AA)
 
     if show_help:
-        lines = [f"{s['name']}: {s['hint']}" for s in spellbook.SPELLS]
-        lines += ["", "q quit  m mask  b mode  l learn-colour  g motion",
-                  "p sample  [ ] thr/Vmin  r rec  t test",
+        lines = [s["name"] for s in spellbook.SPELLS]
+        lines += ["",
+                  "q quit  m mask  b mode  g motion  c clear",
+                  "l learn-colour  p sample  [ ] threshold  t mouse-test",
+                  "r record: [ ] pick spell, draw to add, r to stop",
                   "space presentation  f fullscreen  h help"]
         y = 50
         for ln in lines:
