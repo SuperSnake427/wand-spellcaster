@@ -13,12 +13,15 @@ State tracking:
   so Reparo can always restore the state from just before the last spell.
 
 Sound:
-  Each spell plays assets/<key>.wav via aplay.  Missing files fall back to a
-  terminal bell.
+  Each spell plays assets/<key>.wav with the platform's audio player (afplay on
+  macOS, aplay/paplay on Linux/Pi, winsound on Windows).  A missing file or
+  player falls back to a terminal bell instead of crashing.
 """
 import os
 import random
+import shutil
 import subprocess
+import sys
 import threading
 import time
 from typing import Any
@@ -44,6 +47,12 @@ class EffectController:
         self._devices: dict[str, Any] = {}
         self._kasa: dict[int, Any]    = {}
         self._appletv: Any            = None
+
+        # Pick a cross-platform audio player once.
+        self._audio = self._detect_audio_player()
+        if self._audio is None and getattr(config, "ENABLE_SOUND", True):
+            print("[effects] no audio player found — spell sounds disabled "
+                  "(install one, or set ENABLE_SOUND = False in config.py)")
 
         # -- GPIO relays (optional) ----------------------------------------
         if use_gpio:
@@ -282,9 +291,30 @@ class EffectController:
             self._appletv.turn_off()
             self._state["appletv"] = False
 
+    @staticmethod
+    def _detect_audio_player() -> list[str] | None:
+        """
+        Pick a CLI audio player available on this platform.
+
+        Returns:
+            - The base command (without the wav path) to play a .wav: afplay
+              (macOS), aplay/paplay (Linux/Pi). On Windows returns the sentinel
+              ["winsound"], handled specially by _play_sound. None if no
+              supported player is installed.
+        """
+        if sys.platform.startswith("win"):
+            return ["winsound"]
+        for cmd in (["afplay"], ["aplay", "-q"], ["paplay"]):
+            if shutil.which(cmd[0]):
+                return cmd
+        return None
+
     def _play_sound(self, key: str) -> None:
         """
-        Play assets/<key>.wav via aplay, falling back to a terminal bell.
+        Play assets/<key>.wav with the platform audio player.
+
+        Never raises: a missing file or unavailable player falls back to a
+        terminal bell rather than crashing the app.
 
         Parameters:
             - key: The spell key naming the WAV file to play.
@@ -292,8 +322,22 @@ class EffectController:
         if not getattr(config, "ENABLE_SOUND", True):
             return
         wav = os.path.join(_ASSETS, f"{key}.wav")
-        if os.path.exists(wav):
-            subprocess.Popen(["aplay", "-q", wav], stderr=subprocess.DEVNULL)
-        else:
+        if not os.path.exists(wav):
             print(f"[effects] no sound file: assets/{key}.wav")
+            print("\a", end="", flush=True)
+            return
+        if self._audio is None:
+            print("\a", end="", flush=True)
+            return
+        try:
+            if self._audio == ["winsound"]:
+                import winsound
+                # winsound is Windows-only; ty checks against this host's platform.
+                winsound.PlaySound(wav, winsound.SND_FILENAME | winsound.SND_ASYNC)  # ty: ignore[unresolved-attribute]
+            else:
+                subprocess.Popen([*self._audio, wav],
+                                 stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL)
+        except OSError as exc:
+            print(f"[effects] couldn't play sound ({exc})")
             print("\a", end="", flush=True)
