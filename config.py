@@ -105,7 +105,7 @@ FULLSCREEN = True                     # show the window fullscreen ('f' toggles)
 # need the extra pixels.  Keep the SAME aspect ratio as the frame size (16:9).
 DISPLAY_WIDTH = 1920
 DISPLAY_HEIGHT = 1080
-# Drop a Harry Potter themed image at spellcaster/background.png to use as the
+# Drop a Harry Potter themed image at background.png to use as the
 # backdrop.  If it's missing, a procedural starry-night background is used.
 # Set an absolute path to keep the image elsewhere.
 BACKGROUND_IMAGE = os.path.join(_BASE, "background.png")
@@ -155,7 +155,7 @@ KASA_PLUG_2_DURATION = 3.0     # Incendio: 3-second burst on plug 2
 APPLETV_IP = "192.168.0.110"
 
 # ---------------------------------------------------------------------------
-# Files (anchored to the spellcaster/ folder via _BASE)
+# Files (anchored to the project root via _BASE)
 # ---------------------------------------------------------------------------
 TEMPLATES_FILE = os.path.join(_BASE, "templates.json")        # recorded spell samples
 COLOR_PROFILE_FILE = os.path.join(_BASE, "color_profile.json")  # learned tip colour ('l')

@@ -1,4 +1,4 @@
-# Tooling config for the spellcaster package.
+# Tooling config for the wand-spellcaster project.
 #
 #   uv run ruff check .   # lint
 #   uv run ruff format .  # (optional) auto-format

@@ -1,8 +1,7 @@
 """
 Wand spell-casting station -- core engine.
 
-Run from the project root:   python spellcaster/main.py
-(or from inside the folder:   python main.py)
+Run with:   python main.py
 
 Keys
   q            quit

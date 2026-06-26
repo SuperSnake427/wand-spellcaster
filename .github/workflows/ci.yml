@@ -7,9 +7,6 @@ on:
 jobs:
   lint-and-typecheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: spellcaster
     steps:
       - uses: actions/checkout@v4
 

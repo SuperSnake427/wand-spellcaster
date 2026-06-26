@@ -46,6 +46,11 @@ background_nospells.png
 templates.json
 color_profile.json
 
-# --- Unused vendored asset pack (app uses spellcaster/assets/ + Apple TV) ---
+# --- Unused vendored asset pack (app uses assets/ + Apple TV) ---
 # Kept locally for reference; not part of the app. Delete if you don't need it.
 spell_effects_pack/
+
+# --- Tooling caches / Dropbox config ---
+.ruff_cache/
+# .dropboxignore is Dropbox-specific config, not part of the project
+.dropboxignore
