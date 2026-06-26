@@ -189,6 +189,7 @@ main.py          ties it together + the on-screen UI / input loop
 - I also had a relay shield for the PI, didn't end up using it but had some effects in mind with it
 - The AppleTV was a bit finicky and I didn't end up using it. It worked with the test scripts though.
 - The wand tracking/color is very sensitive to ambient lighting. It helps to have the wand tip stand out from the background.
+- If you get an error "OpenCV: not authorized to capture video (status 0), requesting... OpenCV: camera failed to properly initialize!" on a mac, run this: tccutil reset Camera com.apple.Terminal
 
 ## License
 

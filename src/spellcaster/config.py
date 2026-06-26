@@ -26,6 +26,19 @@ SWAP_RB = False          # set True if the preview colours look wrong (R/B swapp
 LOCK_CAMERA = True       # freeze AE/AWB after the 2-s settle so colour tracking
                          # isn't disrupted by the camera re-adjusting mid-session
 
+# -- camera selection ------------------------------------------------------
+# Which camera to use: an OpenCV device index (laptop/USB) or a picamera2
+# camera number (Pi). With more than one camera attached, set this to pick the
+# right one. If the chosen camera can't be opened, the app prints the cameras it
+# CAN find so you know which index to use here.
+CAMERA_INDEX = 0
+CAMERA_PROBE_COUNT = 8   # how many OpenCV indices (0..N-1) to probe when listing
+
+# What to do when no camera can be opened:
+#   True  -> exit immediately with a clear error (use this for the real setup).
+#   False -> fall back to MOUSE TEST MODE so you can still draw spells by hand.
+REQUIRE_CAMERA = False
+
 # ---------------------------------------------------------------------------
 # Wand-tip detection
 # ---------------------------------------------------------------------------

@@ -31,6 +31,7 @@ from .effects import EffectController
 from .tracker import GestureCapture, WandTracker
 
 WINDOW = "Spell Casting Station"
+_MAX_DEAD_FRAMES = 60   # consecutive empty reads before we give up on the camera
 
 
 class App:
@@ -103,6 +104,7 @@ class App:
         self._fps = 0.0
         self._fps_t = time.time()
         self._fps_n = 0
+        self._dead_frames = 0
 
     def _window_size(self) -> tuple[int, int]:
         """
@@ -177,10 +179,17 @@ class App:
             self.camera = Camera(
                 width=config.FRAME_WIDTH, height=config.FRAME_HEIGHT,
                 fps=config.TARGET_FPS, prefer_picamera=config.PREFER_PICAMERA,
+                camera_index=config.CAMERA_INDEX,
+                probe_count=config.CAMERA_PROBE_COUNT,
                 swap_rb=config.SWAP_RB, lock_camera=config.LOCK_CAMERA)
             print(f"[main] camera backend: {self.camera.backend}")
         except Exception as exc:
-            print(f"[main] no camera ({exc}); starting in MOUSE TEST mode")
+            bar = "=" * 64
+            print(f"\n{bar}\n  CAMERA ERROR: {exc}\n{bar}")
+            if config.REQUIRE_CAMERA:
+                raise SystemExit(1) from exc
+            print("  -> no camera; falling back to MOUSE TEST MODE "
+                  "(hold the left mouse button and draw)\n")
             self.test_mode = True
 
         while True:
@@ -191,7 +200,16 @@ class App:
             else:
                 frame = self.camera.read()
                 if frame is None:
+                    # Camera hiccup or disconnect: keep the window responsive so
+                    # 'q' still quits, and give up if it persists.
+                    self._dead_frames += 1
+                    if self._dead_frames > _MAX_DEAD_FRAMES:
+                        print("[main] camera stopped returning frames; exiting")
+                        break
+                    if not self._handle_keys(cv2.waitKey(1) & 0xFF):
+                        break
                     continue
+                self._dead_frames = 0
                 if config.MIRROR_PREVIEW:
                     frame = cv2.flip(frame, 1)
 
