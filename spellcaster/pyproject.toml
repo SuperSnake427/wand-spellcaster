@@ -1,0 +1,55 @@
+# Tooling config for the spellcaster package.
+#
+#   ruff check .      # lint
+#   ruff format .     # (optional) auto-format
+#   mypy .            # type-check
+#
+# Docstrings follow a custom Parameters:/Returns: format, so ruff's pydocstyle
+# ("D") rules are intentionally NOT enabled — they would flag the house style.
+
+[project]
+name = "spellcaster"
+version = "0.1.0"
+description = "Camera wand-tracking spell-casting station (Raspberry Pi / laptop)."
+# The codebase uses PEP 604 unions (str | None) and builtin generics
+# (list[...]), which require Python 3.10+.
+requires-python = ">=3.10"
+dependencies = [
+    "opencv-python>=4.8",
+    "numpy>=1.24",
+    "python-kasa>=0.5",
+    "pyatv>=0.14",
+]
+
+[project.optional-dependencies]
+# Raspberry Pi extras (preinstalled system-wide on Raspberry Pi OS).
+pi = ["gpiozero", "picamera2"]
+# Developer tooling used by CI.
+dev = ["ruff", "mypy", "pytest"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = [".venv", "__pycache__"]
+
+[tool.ruff.lint]
+# E/W pycodestyle, F pyflakes, I import-sorting, UP pyupgrade, B bugbear.
+select = ["E", "W", "F", "I", "UP", "B"]
+ignore = [
+    "E501",   # line length is handled by the formatter, not enforced hard
+    "E741",   # allow short names like l/s/v that match the domain (HSV, etc.)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test/diagnostic scripts intentionally run module-level code after a sys.path
+# shim, so imports aren't all at the top of the file.
+"tests/*.py" = ["E402"]
+
+[tool.mypy]
+python_version = "3.10"
+# Third-party deps (OpenCV, pyatv, python-kasa, gpiozero, picamera2) ship no
+# type stubs; don't error on their missing types.
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true

@@ -1,0 +1,15 @@
+# Core engine needs OpenCV + NumPy.
+#
+# On the Raspberry Pi 5 (Raspberry Pi OS Bookworm) picamera2 is already
+# installed system-wide, so prefer apt there:
+#     sudo apt install -y python3-opencv python3-picamera2
+#
+# For developing/testing on a laptop (uses a USB webcam or mouse-test mode):
+#     pip install opencv-python numpy
+#
+# gpiozero (for the relay shield / fan / actuator) ships with Raspberry Pi OS.
+
+opencv-python>=4.8
+numpy>=1.24
+python-kasa>=0.5
+pyatv>=0.14

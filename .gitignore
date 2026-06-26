@@ -1,0 +1,51 @@
+# --- Secrets / credentials (never commit) ---
+appletv_credentials.json
+**/appletv_credentials.json
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+**/.venv/
+
+# --- macOS ---
+.DS_Store
+
+# --- Stray IPC artifacts (named pipes/sockets left by other tools) ---
+.lgd-nfy*
+
+# --- IDE / tooling ---
+.vscode/
+.idea/
+
+# --- Claude Code local tooling config (personal SSH allowlists, host IPs) ---
+.claude/
+**/.claude/
+
+# --- Generated debug & calibration captures ---
+# Regenerated at runtime by capture_samples.py / calibrate.py / debug tools.
+debug_*.png
+bg_[0-9]*.png
+wand_[0-9]*.png
+background_old.png
+background_nospells.png
+
+# --- Personal / rig-specific calibration (committed as *.example instead) ---
+# templates.json : your recorded gesture samples ('r' in the app)
+# color_profile.json : your learned tip colour ('l' in the app)
+templates.json
+color_profile.json
+
+# --- Unused vendored asset pack (app uses spellcaster/assets/ + Apple TV) ---
+# Kept locally for reference; not part of the app. Delete if you don't need it.
+spell_effects_pack/
