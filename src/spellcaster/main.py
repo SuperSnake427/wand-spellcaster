@@ -18,6 +18,7 @@ Keys
   space        toggle PRESENTATION mode (themed background, no dev text)
   f            toggle fullscreen
 """
+import threading
 import time
 from typing import Any
 
@@ -97,6 +98,7 @@ class App:
         self.background = hud.load_background(
             config.BACKGROUND_IMAGE, (config.DISPLAY_WIDTH, config.DISPLAY_HEIGHT))
         self.record_key = None          # spell key armed for recording
+        self._record_prompt_active = False
         self.banner = None              # (text, color, expire_time)
         self.last_trail = []            # keep last stroke visible briefly
         self.last_trail_until = 0.0
@@ -585,19 +587,33 @@ class App:
         return area, blob_min, blob_max
 
     def _arm_record(self) -> None:
-        """Prompt for a spell key in the console and arm it for recording."""
+        """
+        Ask (on a background thread) which spell to record next.
+
+        The console prompt runs OFF the main loop so the OpenCV window keeps
+        refreshing and stays responsive while you type the spell key -- a
+        blocking input() here would freeze the window.
+        """
+        if self._record_prompt_active:
+            return
         keys = ", ".join(s["key"] for s in spellbook.SPELLS)
         print(f"\n[record] available spell keys: {keys}")
+        self._record_prompt_active = True
+        threading.Thread(target=self._read_record_key, daemon=True).start()
+
+    def _read_record_key(self) -> None:
+        """Blocking console read (background thread) that arms ``record_key``."""
         try:
             entered = input("[record] type the spell key to record, "
                             "then draw it once: ").strip()
-        except EOFError:
-            return
+        except (EOFError, KeyboardInterrupt):
+            entered = ""
         if spellbook.get(entered):
             self.record_key = entered
             print(f"[record] armed for '{entered}' -- draw it now.")
-        else:
+        elif entered:
             print(f"[record] unknown key '{entered}', cancelled.")
+        self._record_prompt_active = False
 
     def _shutdown(self) -> None:
         """Release the camera, clean up effects, and close all windows."""
