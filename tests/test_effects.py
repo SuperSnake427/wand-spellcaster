@@ -3,21 +3,17 @@ Interactive effect test — cycles through every spell so you can verify
 sounds and hardware actions without running the full wand app.
 
 Usage:
-    python tests/test_effects.py           # step through all spells one by one
-    python tests/test_effects.py lumos     # test a single spell by name
-    python tests/test_effects.py --auto    # run all with a 4-second pause between each
+    uv run python tests/test_effects.py           # step through all spells one by one
+    uv run python tests/test_effects.py lumos     # test a single spell by name
+    uv run python tests/test_effects.py --auto    # run all with a 4-second pause between each
 """
-import os
 import sys
 import time
 
-# Allow flat imports (config, effects, ...) when run from the tests/ subfolder.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import config
-from effects import EffectController
-from spellbook import SPELLS
-from spellbook import get as get_spell
+from spellcaster import config
+from spellcaster.effects import EffectController
+from spellcaster.spellbook import SPELLS
+from spellcaster.spellbook import get as get_spell
 
 
 def print_banner(spell: dict, index: int, total: int) -> None:

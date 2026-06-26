@@ -3,7 +3,7 @@ Debug the tracker live: captures frames, runs the full tracker pipeline,
 and saves annotated images showing every blob the tracker considers.
 
 Usage:
-    python tests/debug_tracker.py
+    uv run python tests/debug_tracker.py
 
 Hold the wand in frame when prompted. Saves:
     debug_bg.png      -- background frame (no wand)
@@ -11,19 +11,14 @@ Hold the wand in frame when prompted. Saves:
     debug_mask_N.png  -- the raw binary mask after all morphology
 """
 
-import os
-import sys
 import time
 
 import cv2
 import numpy as np
 
-# Allow flat imports (camera, tracker, config) when run from the tests/ subfolder.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import config
-from camera import Camera
-from tracker import WandTracker
+from spellcaster import config
+from spellcaster.camera import Camera
+from spellcaster.tracker import WandTracker
 
 N = 3
 

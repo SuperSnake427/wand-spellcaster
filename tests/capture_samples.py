@@ -2,7 +2,7 @@
 Capture reference frames for tuning the wand tracker.
 
 Usage:
-    python tests/capture_samples.py
+    uv run python tests/capture_samples.py
 
 Step 1: Hold the wand OUT of frame -- captures 3 background frames.
 Step 2: Move the wand IN -- captures 3 frames of the lit wand tip.
@@ -15,18 +15,13 @@ Also prints the HSV stats (min/max/mean) for the brightest region in each
 wand frame so you can see what colour range to target in config.py.
 """
 
-import os
-import sys
 import time
 
 import cv2
 import numpy as np
 
-# Allow flat imports (camera, config) when run from the tests/ subfolder.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import config
-from camera import Camera
+from spellcaster import config
+from spellcaster.camera import Camera
 
 N = 3           # frames to capture per phase
 BRIGHTEST_PCT = 2  # analyse the top-N% pixels by brightness

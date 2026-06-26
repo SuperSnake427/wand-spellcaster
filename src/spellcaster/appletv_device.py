@@ -17,7 +17,7 @@ import json
 import os
 from typing import Any
 
-from async_device import AsyncDeviceThread
+from .async_device import AsyncDeviceThread
 
 CONNECT_TIMEOUT = 15.0   # Apple TV can be slow coming out of standby
 CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),

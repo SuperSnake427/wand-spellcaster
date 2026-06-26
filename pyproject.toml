@@ -8,6 +8,10 @@
 # second line (pydocstyle D213). Other "D" rules stay off — they'd flag the
 # house bullet style.
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "spellcaster"
 version = "0.1.0"
@@ -21,6 +25,9 @@ dependencies = [
     "python-kasa>=0.5",
     "pyatv>=0.14",
 ]
+
+[project.scripts]
+spellcaster = "spellcaster.main:main"
 
 # gpiozero + picamera2 are intentionally NOT dependencies: on the Pi they're
 # system packages (apt install python3-picamera2; gpiozero ships with Pi OS),
@@ -52,8 +59,8 @@ fixable = ['ALL']
 unfixable = []
 
 [tool.ruff.lint.per-file-ignores]
-# Test/diagnostic scripts intentionally run module-level code after a sys.path
-# shim, so imports aren't all at the top of the file.
+# Diagnostic scripts run module-level code, and pair_appletv imports inside its
+# __main__ block, so not all imports sit at the very top of the file.
 "tests/*.py" = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
@@ -72,6 +79,9 @@ no-matching-overload = "ignore"
 # gpiozero + picamera2 are Pi-only and intentionally not installed off-Pi
 # (they are lazy-imported inside try/except).
 unresolved-import = "ignore"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spellcaster"]
 
 [dependency-groups]
 dev = [

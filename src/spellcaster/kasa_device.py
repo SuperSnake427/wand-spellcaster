@@ -10,7 +10,7 @@ known-off state even before the camera opens.
 import asyncio
 from typing import Any
 
-from async_device import AsyncDeviceThread
+from .async_device import AsyncDeviceThread
 
 CONNECT_TIMEOUT = 6.0   # seconds to wait for initial connect + turn-off
 

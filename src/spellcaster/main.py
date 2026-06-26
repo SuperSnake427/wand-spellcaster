@@ -24,14 +24,11 @@ from typing import Any
 import cv2
 import numpy as np
 
-import calibrate
-import config
-import hud
-import spellbook
-from camera import Camera
-from dollar import Recognizer
-from effects import EffectController
-from tracker import GestureCapture, WandTracker
+from . import calibrate, config, hud, spellbook
+from .camera import Camera
+from .dollar import Recognizer
+from .effects import EffectController
+from .tracker import GestureCapture, WandTracker
 
 WINDOW = "Spell Casting Station"
 
@@ -592,5 +589,10 @@ class App:
         cv2.destroyAllWindows()
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Build the app and run the capture/render/input loop (entry point)."""
     App().run()
+
+
+if __name__ == "__main__":
+    main()

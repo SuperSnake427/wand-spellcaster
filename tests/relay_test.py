@@ -2,8 +2,8 @@
 """
 Relay wiring / polarity test -- run on the Raspberry Pi.
 
-    python3 tests/relay_test.py        # cycle all 4 channels
-    python3 tests/relay_test.py 1      # just channel 1 (the Lumos light)
+    uv run python tests/relay_test.py        # cycle all 4 channels
+    uv run python tests/relay_test.py 1      # just channel 1 (the Lumos light)
 
 Each tested channel turns ON for ~1.5s (you'll hear the relay click and, on the
 Keyestudio shield, its LED light), then OFF.
@@ -13,16 +13,12 @@ script starts -- your board is the opposite polarity: set
 RELAY_ACTIVE_HIGH = False in config.py and run again.  Pins come from RELAY_CH in
 config.py; edit there if a channel doesn't match your shield's silkscreen.
 """
-import os
 import sys
 import time
 
-# Allow flat imports (config, ...) when run from the tests/ subfolder.
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from gpiozero import OutputDevice
 
-import config
+from spellcaster import config
 
 
 def main() -> None:

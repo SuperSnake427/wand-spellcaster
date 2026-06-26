@@ -23,7 +23,7 @@ import threading
 import time
 from typing import Any
 
-import config
+from . import config
 
 _ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
@@ -63,7 +63,7 @@ class EffectController:
                 print(f"[effects] GPIO unavailable ({exc})")
 
         # -- Kasa smart plugs ----------------------------------------------
-        from kasa_device import KasaDevice
+        from .kasa_device import KasaDevice
         for num, ip_key, label in [
             (1, "KASA_PLUG_1_IP", "kasa1"),
             (2, "KASA_PLUG_2_IP", "kasa2"),
@@ -75,7 +75,7 @@ class EffectController:
         # -- Apple TV -------------------------------------------------------
         ip = getattr(config, "APPLETV_IP", "").strip()
         if ip:
-            from appletv_device import AppleTVDevice
+            from .appletv_device import AppleTVDevice
             self._appletv = AppleTVDevice(ip)
 
     # -----------------------------------------------------------------------

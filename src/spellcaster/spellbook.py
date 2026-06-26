@@ -16,7 +16,7 @@ import json
 import math
 import os
 
-from dollar import Recognizer, Stroke
+from .dollar import Recognizer, Stroke
 
 # ---------------------------------------------------------------------------
 # Default shape generators

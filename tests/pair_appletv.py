@@ -2,7 +2,7 @@
 One-time pairing script for Apple TV.
 
 Run this once:
-    python tests/pair_appletv.py
+    uv run python tests/pair_appletv.py
 
 Your Apple TV will show a PIN on screen.  Enter it when prompted.
 Credentials are saved to appletv_credentials.json and loaded automatically
@@ -13,14 +13,8 @@ import json
 import os
 import sys
 
-# Package root (parent of tests/) -- where the app reads/writes its files.
-_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Allow flat imports (config) when run from the tests/ subfolder.
-sys.path.insert(0, _BASE)
-
-# Credentials must land in the package root so appletv_device.py finds them.
-CREDENTIALS_FILE = os.path.join(_BASE, "appletv_credentials.json")
+# Write credentials where appletv_device.py reads them (the package dir).
+from spellcaster.appletv_device import CREDENTIALS_FILE
 
 try:
     import pyatv
@@ -85,7 +79,7 @@ async def main(ip: str) -> None:
 
 
 if __name__ == "__main__":
-    import config
+    from spellcaster import config
     ip = getattr(config, "APPLETV_IP", "").strip()
     if not ip:
         ip = input("Enter Apple TV IP address: ").strip()

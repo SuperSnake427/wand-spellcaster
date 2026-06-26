@@ -11,9 +11,8 @@ import os
 import cv2
 import numpy as np
 
-import config
-import spellbook
-from tracker import WandTracker
+from . import config, spellbook
+from .tracker import WandTracker
 
 # (text, BGR colour, expiry timestamp) for the transient feedback banner.
 Banner = tuple[str, tuple[int, int, int], float]

@@ -10,28 +10,30 @@ Entirely vibe coded (Claude) less than 24 hours before my daughter's 10 birthday
 
 ## Quick start
 
-Requires **Python 3.10+**.
+Requires **Python 3.10+**. The code lives in `src/spellcaster/`.
+
+**Laptop / dev (uv):**
 
 ```bash
-pip install -r requirements.txt
-python main.py
+uv sync
+uv run spellcaster
 ```
-
-(uv users: `uv sync` then `uv run python main.py`.)
 
 No camera? It starts in **mouse-test mode** — hold the left mouse button and draw
 a spell shape to see recognition working immediately.
 
-On the **Raspberry Pi 5** (Raspberry Pi OS Bookworm — picamera2 is preinstalled):
+**Raspberry Pi 5** (Raspberry Pi OS Bookworm) — the camera and relays use the
+system `picamera2`/`gpiozero` (apt packages, which an isolated uv venv can't see),
+so run with the **system** Python and the package on the path:
 
 ```bash
 sudo apt install -y python3-opencv python3-picamera2
-python main.py
+PYTHONPATH=src python -m spellcaster.main
 ```
 
 ## Two ways to track the tip
 
-Set `TRACK_MODE` in [config.py](config.py):
+Set `TRACK_MODE` in [config.py](src/spellcaster/config.py):
 
 - **`"color"` (default)** — for a wand with an **active coloured LED** at the
   tip (e.g. the purple-light wand). This is the easiest and most reliable: the
@@ -86,15 +88,15 @@ Press **`space`** to flip into presentation mode: it swaps the camera view for a
 themed backdrop and hides *all* the dev text — the green status line, the help
 list, and the tracking circle — leaving just the glowing spell trail and the
 spell-cast banner. Press **`f`** for fullscreen. To boot straight into it, set
-`PRESENTATION_MODE = True` (and `FULLSCREEN = True`) in [config.py](config.py).
+`PRESENTATION_MODE = True` (and `FULLSCREEN = True`) in [config.py](src/spellcaster/config.py).
 
-Drop a Harry Potter image named **`background.png`** in the project root to use
-as the backdrop. If there's no such file, a procedural starry-night background is
+Drop a Harry Potter image named **`background.png`** in `src/spellcaster/` to
+use as the backdrop. If there's no such file, a procedural starry-night background is
 used automatically. Change the filename via `BACKGROUND_IMAGE` in
-[config.py](config.py).
+[config.py](src/spellcaster/config.py).
 
 **Image size:** presentation is rendered at `DISPLAY_WIDTH x DISPLAY_HEIGHT`
-(default **1920x1080**, 16:9 widescreen, set in [config.py](config.py)) for a
+(default **1920x1080**, 16:9 widescreen, set in [config.py](src/spellcaster/config.py)) for a
 crisp fullscreen image, while the camera and tracking stay at the lower `FRAME_*`
 resolution (default 640x360, also 16:9). Make `background.png` **16:9** (it's
 scaled to fit; matching the ratio avoids stretching). Bump `DISPLAY_WIDTH/HEIGHT`
@@ -125,7 +127,7 @@ spell for best results.
 
 ## The spells
 
-Defined in [spellbook.py](spellbook.py) — edit names, hints, shapes, and which
+Defined in [spellbook.py](src/spellcaster/spellbook.py) — edit names, hints, shapes, and which
 effect each triggers. Current set: Lumos (circle), Descendo (swipe down),
 Incendio (Z), Aguamenti (wave), Stupefy (checkmark), Confundus (W), Alohomora
 (L), Expelliarmus (slash up), Reparo (star), Ascendio (caret), Herbivicus
@@ -137,20 +139,20 @@ confused — use different *shapes* instead.
 
 ## Tuning
 
-All knobs are in [config.py](config.py): `BRIGHTNESS_THRESHOLD` (detection),
+All knobs are in [config.py](src/spellcaster/config.py): `BRIGHTNESS_THRESHOLD` (detection),
 the `GESTURE_*` timings (when a stroke starts/ends), and `MIN_SCORE` (how close
 a match must be — lower it if a wobbly drawing isn't recognised).
 
 ## Hardware: the relay shield (Keyestudio RPi 4-channel)
 
-Effect routing exists in [effects.py](effects.py). On the Raspberry Pi:
+Effect routing exists in [effects.py](src/spellcaster/effects.py). On the Raspberry Pi:
 
 1. Seat the shield on the 40-pin header. Channel→GPIO is fixed by the shield and
-   set in `RELAY_CH` in [config.py](config.py) (defaults `{1:4, 2:17, 3:27,
+   set in `RELAY_CH` in [config.py](src/spellcaster/config.py) (defaults `{1:4, 2:17, 3:27,
    4:26}` for the Keyestudio KS0212). **Verify** against your shield's silkscreen.
-2. **Test the wiring first:** `python3 tests/relay_test.py 1` clicks channel 1 on
-   for ~1.5s. `python3 tests/relay_test.py` cycles all four. If a relay is on when
-   it says off (or all click on at boot), set `RELAY_ACTIVE_HIGH = False` in
+2. **Test the wiring first:** `PYTHONPATH=src python tests/relay_test.py 1` clicks
+   channel 1 on for ~1.5s; drop the `1` to cycle all four. If a relay is on when it
+   says off (or all click on at boot), set `RELAY_ACTIVE_HIGH = False` in
    config.py.
 3. Set `USE_GPIO = True` in config.py and run the app.
 
@@ -159,10 +161,10 @@ the pins via lgpio automatically — no extra setup.
 
 ## First-run setup notes
 
-- **Apple TV:** run `python tests/pair_appletv.py` once to pair; it writes
+- **Apple TV:** run `uv run python tests/pair_appletv.py` once to pair; it writes
   `appletv_credentials.json` (gitignored — keep it private).
 - **Device IPs:** set your Kasa plug and Apple TV addresses in
-  [config.py](config.py).
+  [config.py](src/spellcaster/config.py).
 - **Calibration:** `templates.json` (recorded gestures) and `color_profile.json`
   (learned tip colour) are personal and gitignored. Copy the `.example` files or
   just let the app regenerate them (`r` to record gestures, `l`/`p` to learn the
