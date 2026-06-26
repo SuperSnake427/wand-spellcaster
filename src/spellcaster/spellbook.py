@@ -127,6 +127,26 @@ def _s_curve(n: int = 21) -> Stroke:
     return [(70 * math.sin(math.pi * i / 10), -100 + 10 * i) for i in range(n)]
 
 
+def _spiral(turns: float = 2.5, n: int = 48) -> Stroke:
+    """
+    An outward spiral from the centre (Revelio).
+
+    Parameters:
+        - turns: How many full turns the spiral makes (default 2.5).
+        - n: The number of points (default 48).
+
+    Returns:
+        - The spiral stroke.
+    """
+    out: Stroke = []
+    for i in range(n):
+        frac = i / (n - 1)
+        ang = turns * 2 * math.pi * frac
+        r = 100 * frac
+        out.append((r * math.cos(ang), -r * math.sin(ang)))
+    return out
+
+
 # ---------------------------------------------------------------------------
 # The spellbook
 # ---------------------------------------------------------------------------
@@ -143,6 +163,7 @@ def _s_curve(n: int = 21) -> Stroke:
 #   herbivicus                ->  blender 5s                   KASA_PLUG_2_IP
 #   serpensortia              ->  light on/off 0.5s for 10s
 #   alohomora                 ->  sound only
+#   revelio                   ->  sound only
 
 SPELLS: list[dict] = [
     {"key": "lumos",        "name": "Lumos",        "hint": "draw a circle",
@@ -169,6 +190,8 @@ SPELLS: list[dict] = [
      "effect": "herbivicus",   "shape": _triangle()},
     {"key": "serpensortia", "name": "Serpensortia", "hint": "draw an S",
      "effect": "serpensortia", "shape": _s_curve()},
+    {"key": "revelio",      "name": "Revelio",      "hint": "draw a spiral",
+     "effect": "revelio",      "shape": _spiral()},
 ]
 
 _BY_KEY = {s["key"]: s for s in SPELLS}

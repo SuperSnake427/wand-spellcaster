@@ -138,7 +138,7 @@ Defined in [spellbook.py](src/spellcaster/spellbook.py) — edit names, hints, s
 effect each triggers. Current set: Lumos (circle), Descendo (swipe down),
 Incendio (Z), Aguamenti (wave), Stupefy (checkmark), Confundus (W), Alohomora
 (L), Expelliarmus (slash up), Reparo (star), Ascendio (caret), Herbivicus
-(triangle), Serpensortia (S).
+(triangle), Serpensortia (S), Revelio (spiral).
 
 Tip: keep spell shapes **visually distinct**. The recogniser is tolerant of
 size, position, and tilt, so two shapes that differ only by rotation can be

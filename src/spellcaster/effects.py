@@ -160,6 +160,9 @@ class EffectController:
     def _fx_alohomora(self) -> None:
         """Sound only — the WAV does the work."""
 
+    def _fx_revelio(self) -> None:
+        """Sound only — the WAV does the work."""
+
     def _fx_expelliarmus(self) -> None:
         """ALL OFF (both plugs and the Apple TV)."""
         self._kasa_set(1, False)
