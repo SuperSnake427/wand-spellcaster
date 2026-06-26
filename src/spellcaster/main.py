@@ -250,13 +250,16 @@ class App:
         self.last_trail_until = now + 1.5
 
         if self.record_key:
+            # Recording stays armed: every stroke saves another sample for the
+            # same spell (recognition/effects are suppressed) until 'r' stops it.
             spellbook.save_sample(config.TEMPLATES_FILE, self.recorded,
                                   self.record_key, stroke)
             self.recognizer.add_template(self.record_key, stroke)
             spell = spellbook.get(self.record_key)
             label = spell["name"] if spell else self.record_key
-            self.banner = (f"recorded: {label}", (120, 255, 120), now + 1.5)
-            self.record_key = None
+            count = len(self.recorded.get(self.record_key, []))
+            self.banner = (f"REC {label}: {count} saved  (press 'r' to stop)",
+                           (120, 255, 120), now + 2.5)
             return
 
         name, score = self.recognizer.recognize(stroke)
@@ -372,7 +375,13 @@ class App:
         elif key == ord("]"):
             self._nudge_floor(+5)
         elif key == ord("r"):
-            self._arm_record()
+            if self.record_key is not None:
+                print(f"[record] stopped recording '{self.record_key}'")
+                self.banner = (f"recording stopped: {self.record_key}",
+                               (180, 180, 180), time.time() + 1.5)
+                self.record_key = None
+            else:
+                self._arm_record()
         elif key == ord("p"):
             self._sample_color()
         elif key == ord("g"):
@@ -610,7 +619,8 @@ class App:
             entered = ""
         if spellbook.get(entered):
             self.record_key = entered
-            print(f"[record] armed for '{entered}' -- draw it now.")
+            print(f"[record] recording '{entered}': draw it as many times as "
+                  "you like; press 'r' in the window to stop.")
         elif entered:
             print(f"[record] unknown key '{entered}', cancelled.")
         self._record_prompt_active = False
