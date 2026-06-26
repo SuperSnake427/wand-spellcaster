@@ -25,7 +25,9 @@ env/
 .lgd-nfy*
 
 # --- IDE / tooling ---
-.vscode/
+.vscode/*
+# share the run config across machines; ignore other (personal) VS Code files
+!.vscode/launch.json
 .idea/
 
 # --- Claude Code local tooling config (personal SSH allowlists, host IPs) ---

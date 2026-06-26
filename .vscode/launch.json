@@ -1,0 +1,16 @@
+{
+  // Runs the package as a module (python -m spellcaster.main) so the relative
+  // imports resolve. Select the ./.venv interpreter first
+  // (Cmd/Ctrl+Shift+P -> "Python: Select Interpreter"), then press F5.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Spellcaster",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "spellcaster.main",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
