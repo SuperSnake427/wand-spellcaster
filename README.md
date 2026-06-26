@@ -90,7 +90,7 @@ list, and the tracking circle — leaving just the glowing spell trail and the
 spell-cast banner. Press **`f`** for fullscreen. To boot straight into it, set
 `PRESENTATION_MODE = True` (and `FULLSCREEN = True`) in [config.py](src/spellcaster/config.py).
 
-Drop a Harry Potter image named **`background.png`** in `src/spellcaster/` to
+Drop a Harry Potter image named **`background.png`** in `src/spellcaster/assets/` to
 use as the backdrop. If there's no such file, a procedural starry-night background is
 used automatically. Change the filename via `BACKGROUND_IMAGE` in
 [config.py](src/spellcaster/config.py).

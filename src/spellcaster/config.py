@@ -118,10 +118,10 @@ FULLSCREEN = True                     # show the window fullscreen ('f' toggles)
 # need the extra pixels.  Keep the SAME aspect ratio as the frame size (16:9).
 DISPLAY_WIDTH = 1920
 DISPLAY_HEIGHT = 1080
-# Drop a Harry Potter themed image at background.png to use as the
+# Drop a Harry Potter themed image at assets/background.png to use as the
 # backdrop.  If it's missing, a procedural starry-night background is used.
 # Set an absolute path to keep the image elsewhere.
-BACKGROUND_IMAGE = os.path.join(_BASE, "background.png")
+BACKGROUND_IMAGE = os.path.join(_BASE, "assets", "background.png")
 
 # ---------------------------------------------------------------------------
 # Effects / hardware (wired up later)
