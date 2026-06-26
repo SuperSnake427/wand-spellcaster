@@ -347,6 +347,7 @@ class GestureCapture:
         self.start_time = 0.0
         self.last_seen = 0.0
         self.last_move = 0.0
+        self.dropped: tuple[int, float] | None = None   # (n_pts, path) of last too-short stroke
 
     @staticmethod
     def _dist(a: Point, b: Point) -> float:
@@ -423,5 +424,7 @@ class GestureCapture:
         self.active = False
         self.points = []
         if len(pts) >= self.min_points and self._path_len(pts) >= self.min_path:
+            self.dropped = None
             return pts
+        self.dropped = (len(pts), self._path_len(pts))
         return None

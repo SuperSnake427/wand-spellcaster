@@ -239,6 +239,12 @@ class App:
                 stroke = self.gesture.update(tip, now)
                 if stroke:
                     self._handle_stroke(stroke, now)
+                elif self.recording and self.gesture.dropped:
+                    n_pts, path = self.gesture.dropped
+                    self.banner = (f"too short ({n_pts} pts / {path:.0f}px) - "
+                                   "draw bigger, then pause to save",
+                                   (80, 140, 255), now + 1.5)
+                self.gesture.dropped = None
 
             display = self._render(frame, tip, now)
             cv2.imshow(WINDOW, display)
