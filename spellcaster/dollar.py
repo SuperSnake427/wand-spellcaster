@@ -24,7 +24,8 @@ HALF_DIAGONAL = 0.5 * math.sqrt(2.0 * SQUARE_SIZE * SQUARE_SIZE)
 
 
 def _distance(p1: Point, p2: Point) -> float:
-    """Euclidean distance between two points.
+    """
+    Euclidean distance between two points.
 
     Parameters:
         - p1: The first point.
@@ -37,7 +38,8 @@ def _distance(p1: Point, p2: Point) -> float:
 
 
 def _path_length(points: Stroke) -> float:
-    """Total length of the polyline through the stroke points.
+    """
+    Total length of the polyline through the stroke points.
 
     Parameters:
         - points: Ordered stroke points.
@@ -49,7 +51,8 @@ def _path_length(points: Stroke) -> float:
 
 
 def _resample(points: Stroke, n: int = NUM_POINTS) -> Stroke:
-    """Resample a stroke to n points spaced at equal arc length.
+    """
+    Resample a stroke to n points spaced at equal arc length.
 
     Parameters:
         - points: The raw stroke, which may have unevenly spaced points.
@@ -85,7 +88,8 @@ def _resample(points: Stroke, n: int = NUM_POINTS) -> Stroke:
 
 
 def _centroid(points: Stroke) -> Point:
-    """Mean (x, y) of the stroke points.
+    """
+    Mean (x, y) of the stroke points.
 
     Parameters:
         - points: The stroke to average.
@@ -99,7 +103,8 @@ def _centroid(points: Stroke) -> Point:
 
 
 def _indicative_angle(points: Stroke) -> float:
-    """Angle from the centroid to the first point of the stroke.
+    """
+    Angle from the centroid to the first point of the stroke.
 
     Parameters:
         - points: The stroke to measure.
@@ -112,7 +117,8 @@ def _indicative_angle(points: Stroke) -> float:
 
 
 def _rotate_by(points: Stroke, theta: float) -> Stroke:
-    """Rotate a stroke about its centroid by theta radians.
+    """
+    Rotate a stroke about its centroid by theta radians.
 
     Parameters:
         - points: The stroke to rotate.
@@ -131,7 +137,8 @@ def _rotate_by(points: Stroke, theta: float) -> Stroke:
 
 
 def _bounding_box(points: Stroke) -> tuple[float, float, float, float]:
-    """Axis-aligned bounding box of the stroke.
+    """
+    Axis-aligned bounding box of the stroke.
 
     Parameters:
         - points: The stroke to bound.
@@ -145,7 +152,8 @@ def _bounding_box(points: Stroke) -> tuple[float, float, float, float]:
 
 
 def _scale_to_square(points: Stroke, size: float = SQUARE_SIZE) -> Stroke:
-    """Non-uniformly scale a stroke to fit a size x size box.
+    """
+    Non-uniformly scale a stroke to fit a size x size box.
 
     Parameters:
         - points: The stroke to scale.
@@ -164,7 +172,8 @@ def _scale_to_square(points: Stroke, size: float = SQUARE_SIZE) -> Stroke:
 
 
 def _translate_to_origin(points: Stroke) -> Stroke:
-    """Translate a stroke so its centroid sits at the origin.
+    """
+    Translate a stroke so its centroid sits at the origin.
 
     Parameters:
         - points: The stroke to translate.
@@ -177,7 +186,8 @@ def _translate_to_origin(points: Stroke) -> Stroke:
 
 
 def normalize(points: Stroke, rotation_tolerant: bool = True) -> Stroke:
-    """Resample/scale/translate a raw stroke into a comparable canonical form.
+    """
+    Resample/scale/translate a raw stroke into a comparable canonical form.
 
     Parameters:
         - points: The raw stroke to canonicalise.
@@ -196,7 +206,8 @@ def normalize(points: Stroke, rotation_tolerant: bool = True) -> Stroke:
 
 
 def _path_distance(a: Stroke, b: Stroke) -> float:
-    """Mean point-to-point distance between two equal-length strokes.
+    """
+    Mean point-to-point distance between two equal-length strokes.
 
     Parameters:
         - a: The first stroke.
@@ -209,7 +220,8 @@ def _path_distance(a: Stroke, b: Stroke) -> float:
 
 
 def _distance_at_angle(points: Stroke, template: Stroke, theta: float) -> float:
-    """Path distance after rotating the candidate stroke by theta.
+    """
+    Path distance after rotating the candidate stroke by theta.
 
     Parameters:
         - points: The candidate stroke.
@@ -223,7 +235,8 @@ def _distance_at_angle(points: Stroke, template: Stroke, theta: float) -> float:
 
 
 def _distance_at_best_angle(points: Stroke, template: Stroke) -> float:
-    """Minimum path distance over a golden-section search of rotations.
+    """
+    Minimum path distance over a golden-section search of rotations.
 
     Parameters:
         - points: The candidate stroke.
@@ -250,7 +263,8 @@ def _distance_at_best_angle(points: Stroke, template: Stroke) -> float:
 
 
 class Template:
-    """A named reference stroke stored in canonical form.
+    """
+    A named reference stroke stored in canonical form.
 
     Parameters:
         - name: The label returned when this template is the best match.
@@ -267,7 +281,8 @@ class Template:
 
 
 class Recognizer:
-    """Holds templates and matches new strokes against them.
+    """
+    Holds templates and matches new strokes against them.
 
     Parameters:
         - rotation_tolerant: Whether matching should be rotation invariant
@@ -279,7 +294,8 @@ class Recognizer:
         self.templates: list[Template] = []
 
     def add_template(self, name: str, raw_points: Stroke) -> None:
-        """Add a named example stroke to the template set.
+        """
+        Add a named example stroke to the template set.
 
         Parameters:
             - name: The label for this gesture.
@@ -291,7 +307,8 @@ class Recognizer:
         self.templates.append(Template(name, raw_points, self.rotation_tolerant))
 
     def recognize(self, raw_points: Stroke) -> tuple[str | None, float]:
-        """Return (name, score) for the best matching template.
+        """
+        Return (name, score) for the best matching template.
 
         Parameters:
             - raw_points: The stroke to classify.

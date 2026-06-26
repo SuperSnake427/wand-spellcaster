@@ -16,7 +16,8 @@ Stroke = list[Point]
 
 
 class WandTracker:
-    """Finds the wand tip in a frame, by colour (active LED) or brightness.
+    """
+    Finds the wand tip in a frame, by colour (active LED) or brightness.
 
     Parameters:
         - mode: "color" to gate on the lit LED's HSV, or "brightness" to
@@ -57,7 +58,8 @@ class WandTracker:
 
     @staticmethod
     def _make_bgsub() -> "cv2.BackgroundSubtractorMOG2":
-        """Create the MOG2 background subtractor used by the motion gate.
+        """
+        Create the MOG2 background subtractor used by the motion gate.
 
         History is ~200 frames so a still wand is re-absorbed within a couple
         of seconds; shadow detection is off for a clean binary foreground.
@@ -69,7 +71,8 @@ class WandTracker:
             history=200, varThreshold=25, detectShadows=False)
 
     def toggle_motion(self) -> bool:
-        """Flip the motion gate on/off, creating the subtractor if needed.
+        """
+        Flip the motion gate on/off, creating the subtractor if needed.
 
         Returns:
             - The new motion-gate state.
@@ -80,7 +83,8 @@ class WandTracker:
         return self.motion_gate
 
     def find_tip(self, frame: np.ndarray) -> Point | None:
-        """Locate the wand tip in a frame using the configured mode.
+        """
+        Locate the wand tip in a frame using the configured mode.
 
         Parameters:
             - frame: A BGR frame.
@@ -94,7 +98,8 @@ class WandTracker:
 
     # -- colour (active LED) -----------------------------------------------
     def _find_color(self, frame: np.ndarray) -> Point | None:
-        """Find the tip by HSV-gating the lit LED.
+        """
+        Find the tip by HSV-gating the lit LED.
 
         Parameters:
             - frame: A BGR frame.
@@ -117,17 +122,20 @@ class WandTracker:
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
         if self.border_crop:
             c = self.border_crop
-            mask[:c, :] = 0; mask[-c:, :] = 0
-            mask[:, :c] = 0; mask[:, -c:] = 0
+            mask[:c, :] = 0
+            mask[-c:, :] = 0
+            mask[:, :c] = 0
+            mask[:, -c:] = 0
         self.last_mask = mask
         return self._best_blob(mask, hsv[:, :, 2])
 
     # Radius (frame pixels) to search around the cursor when 'p' is pressed.
-    SAMPLE_SEARCH_R = 12   # frame-px; ~36 display-px at 3× scale — aim within this
+    SAMPLE_SEARCH_R = 12   # frame-px; ~36 display-px at 3x scale — aim within this
 
     def sample_hsv(self, frame: np.ndarray, x: float, y: float,
                    h_pad: int = 10) -> tuple[int, int, int]:
-        """Sample the lit tip colour near (x, y) and set the HSV gate.
+        """
+        Sample the lit tip colour near (x, y) and set the HSV gate.
 
         The tape is typically only 2-5 pixels wide at operating distance.
         Rather than sampling a fixed patch at the cursor (which is mostly
@@ -170,7 +178,7 @@ class WandTracker:
         g_lead = bgr_roi[:, :, 1] - 0.5 * (bgr_roi[:, :, 0] + bgr_roi[:, :, 2])
         score = np.clip(g_lead, 0, None) * v_map
 
-        if score.max() < 5:          # nothing greener than background → V×S
+        if score.max() < 5:          # nothing greener than background → VxS
             score = v_map * (s_map / 255.0)
         if score.max() < 1:          # nothing saturated → pure brightness
             score = v_map
@@ -183,7 +191,7 @@ class WandTracker:
               f"  g_lead={g_win - 0.5*(b_win+r_win):.0f}"
               f"  score={score[ry,rx]:.0f}")
 
-        # Sample a 5×5 patch around the peak.
+        # Sample a 5x5 patch around the peak.
         p = 2
         px0, px1 = max(0, px - p), min(width,  px + p + 1)
         py0, py1 = max(0, py - p), min(height, py + p + 1)
@@ -208,7 +216,8 @@ class WandTracker:
 
     # -- brightness (retroreflective / IR emitter) -------------------------
     def _find_bright(self, frame: np.ndarray) -> Point | None:
-        """Find the tip by thresholding a grayscale image for bright blobs.
+        """
+        Find the tip by thresholding a grayscale image for bright blobs.
 
         Parameters:
             - frame: A BGR frame.
@@ -224,8 +233,10 @@ class WandTracker:
         mask = self._apply_motion(mask, frame)
         if self.border_crop:
             c = self.border_crop
-            mask[:c, :] = 0; mask[-c:, :] = 0
-            mask[:, :c] = 0; mask[:, -c:] = 0
+            mask[:c, :] = 0
+            mask[-c:, :] = 0
+            mask[:, :c] = 0
+            mask[:, -c:] = 0
         self.last_mask = mask
         tip = self._best_blob(mask, gray)
         if tip is not None:
@@ -240,7 +251,8 @@ class WandTracker:
 
     # -- motion gate (shared) ----------------------------------------------
     def _apply_motion(self, mask: np.ndarray, frame: np.ndarray) -> np.ndarray:
-        """AND a mask with 'what moved this frame' so static background drops out.
+        """
+        AND a mask with 'what moved this frame' so static background drops out.
 
         MOG2 must be fed once per frame to keep learning; find_tip dispatches to
         exactly one of the find_* methods, so this is called once per frame.
@@ -262,7 +274,8 @@ class WandTracker:
 
     # -- shared -------------------------------------------------------------
     def _best_blob(self, mask: np.ndarray, value: np.ndarray) -> Point | None:
-        """Pick the blob most likely to be the wand tip: bright and within size.
+        """
+        Pick the blob most likely to be the wand tip: bright and within size.
 
         Among same-colour candidates (a shirt the same purple as the tip), the
         LED is an EMITTER, so its pixels are brighter -- we select the blob with
@@ -308,7 +321,8 @@ class WandTracker:
 
 
 class GestureCapture:
-    """Turns a per-frame stream of tip positions into completed strokes.
+    """
+    Turns a per-frame stream of tip positions into completed strokes.
 
     Parameters:
         - end_pause: Seconds the wand may be still/absent before the stroke
@@ -336,7 +350,8 @@ class GestureCapture:
 
     @staticmethod
     def _dist(a: Point, b: Point) -> float:
-        """Euclidean distance between two points.
+        """
+        Euclidean distance between two points.
 
         Parameters:
             - a: The first point.
@@ -348,7 +363,8 @@ class GestureCapture:
         return math.hypot(a[0] - b[0], a[1] - b[1])
 
     def _path_len(self, pts: Stroke) -> float:
-        """Total polyline length of a stroke.
+        """
+        Total polyline length of a stroke.
 
         Parameters:
             - pts: The stroke points.
@@ -359,7 +375,8 @@ class GestureCapture:
         return sum(self._dist(pts[i - 1], pts[i]) for i in range(1, len(pts)))
 
     def update(self, tip: Point | None, now: float) -> Stroke | None:
-        """Feed one frame's tip position and maybe return a finished stroke.
+        """
+        Feed one frame's tip position and maybe return a finished stroke.
 
         A stroke ends when the tip leaves the frame OR the wand is held still
         for `end_pause` seconds -- the latter matters for an always-on LED tip,
@@ -395,7 +412,8 @@ class GestureCapture:
         return None
 
     def _finalize(self) -> Stroke | None:
-        """Reset capture state and return the stroke if it meets thresholds.
+        """
+        Reset capture state and return the stroke if it meets thresholds.
 
         Returns:
             - The captured stroke if it has enough points and path length,

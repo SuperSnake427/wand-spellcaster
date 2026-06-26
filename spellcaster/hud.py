@@ -21,7 +21,8 @@ Banner = tuple[str, tuple[int, int, int], float]
 
 # -- backgrounds ------------------------------------------------------------
 def starfield(w: int, h: int) -> np.ndarray:
-    """Draw a dark blue-violet gradient sprinkled with stars.
+    """
+    Draw a dark blue-violet gradient sprinkled with stars.
 
     Parameters:
         - w: The image width in pixels.
@@ -44,7 +45,8 @@ def starfield(w: int, h: int) -> np.ndarray:
 
 
 def load_background(path: str | None, size: tuple[int, int]) -> np.ndarray:
-    """Load the presentation-mode backdrop.
+    """
+    Load the presentation-mode backdrop.
 
     Parameters:
         - path: Path to a background image, or None/missing to use a starfield.
@@ -65,8 +67,9 @@ def load_background(path: str | None, size: tuple[int, int]) -> np.ndarray:
 
 # -- swatch -----------------------------------------------------------------
 def swatch_color(hsv_lower: np.ndarray,
-                 hsv_upper: np.ndarray) -> tuple[int, int, int]:
-    """Compute a representative BGR colour from an HSV gate for display.
+                 hsv_upper: np.ndarray) -> tuple[int, ...]:
+    """
+    Compute a representative BGR colour from an HSV gate for display.
 
     Parameters:
         - hsv_lower: The lower HSV gate bound.
@@ -78,14 +81,15 @@ def swatch_color(hsv_lower: np.ndarray,
     h_mid = (int(hsv_lower[0]) + int(hsv_upper[0])) // 2
     s_mid = max(160, (int(hsv_lower[1]) + int(hsv_upper[1])) // 2)
     v_mid = max(180, (int(hsv_lower[2]) + int(hsv_upper[2])) // 2)
-    swatch_hsv = np.uint8([[[h_mid, s_mid, v_mid]]])
+    swatch_hsv = np.array([[[h_mid, s_mid, v_mid]]], dtype=np.uint8)
     bgr = cv2.cvtColor(swatch_hsv, cv2.COLOR_HSV2BGR)[0, 0]
     return tuple(int(x) for x in bgr)
 
 
 def draw_swatch(canvas: np.ndarray,
-                color: tuple[int, int, int] | None) -> None:
-    """Draw a filled colour block showing the currently trained tip colour.
+                color: tuple[int, ...] | None) -> None:
+    """
+    Draw a filled colour block showing the currently trained tip colour.
 
     Parameters:
         - canvas: The display canvas to draw on (modified in place).
@@ -93,7 +97,7 @@ def draw_swatch(canvas: np.ndarray,
     """
     if not color:
         return
-    h, w = canvas.shape[:2]
+    _h, w = canvas.shape[:2]
     sw = 90
     x0, x1 = w - sw - 14, w - 14
     y0, y1 = 14, 14 + sw
@@ -107,7 +111,8 @@ def draw_swatch(canvas: np.ndarray,
 def draw_trail(canvas: np.ndarray, points: list[tuple[float, float]],
                sx: float = 1.0, sy: float = 1.0,
                color: tuple[int, int, int] = (80, 180, 255)) -> None:
-    """Draw a glowing wand trail polyline onto the canvas.
+    """
+    Draw a glowing wand trail polyline onto the canvas.
 
     Parameters:
         - canvas: The display canvas to draw on (modified in place).
@@ -122,14 +127,15 @@ def draw_trail(canvas: np.ndarray, points: list[tuple[float, float]],
         pts[:, 1] *= sy
     pts = pts.astype(np.int32)
     s = (sx + sy) / 2.0
-    glow = max(2, int(round(9 * s)))
-    core = max(1, int(round(2 * s)))
+    glow = max(2, round(9 * s))
+    core = max(1, round(2 * s))
     cv2.polylines(canvas, [pts], False, color, glow, cv2.LINE_AA)       # glow
     cv2.polylines(canvas, [pts], False, (255, 255, 255), core, cv2.LINE_AA)  # core
 
 
 def draw_banner(canvas: np.ndarray, banner: Banner | None, now: float) -> None:
-    """Draw the transient spell-feedback banner if it hasn't expired.
+    """
+    Draw the transient spell-feedback banner if it hasn't expired.
 
     Parameters:
         - canvas: The display canvas to draw on (modified in place).
@@ -142,14 +148,15 @@ def draw_banner(canvas: np.ndarray, banner: Banner | None, now: float) -> None:
         fs = h / 480.0   # scale font with canvas height (high-res in present.)
         cv2.putText(canvas, text, (int(12 * fs), h - int(22 * fs)),
                     cv2.FONT_HERSHEY_DUPLEX, fs, color,
-                    max(2, int(round(2 * fs))), cv2.LINE_AA)
+                    max(2, round(2 * fs)), cv2.LINE_AA)
 
 
 # -- dev chrome / overlays --------------------------------------------------
 def draw_chrome(canvas: np.ndarray, tracker: WandTracker, *,
                 test_mode: bool, record_key: str | None, fps: float,
                 show_help: bool) -> None:
-    """Draw the dev-mode status line and (optionally) the help/spell list.
+    """
+    Draw the dev-mode status line and (optionally) the help/spell list.
 
     Parameters:
         - canvas: The display canvas to draw on (modified in place).
@@ -184,7 +191,8 @@ def draw_chrome(canvas: np.ndarray, tracker: WandTracker, *,
 
 
 def draw_calibration(canvas: np.ndarray, info: dict) -> None:
-    """Draw the colour-training overlay band, text, and progress bar.
+    """
+    Draw the colour-training overlay band, text, and progress bar.
 
     Parameters:
         - canvas: The display canvas to draw on (modified in place).
@@ -214,7 +222,8 @@ def draw_calibration(canvas: np.ndarray, info: dict) -> None:
 def draw_reticle(canvas: np.ndarray, mouse_pos: tuple[int, int] | None,
                  tracker: WandTracker, frame: np.ndarray | None,
                  win_w: int, win_h: int) -> None:
-    """Draw the targeting reticle for 'p' colour sampling.
+    """
+    Draw the targeting reticle for 'p' colour sampling.
 
     Outer circle = search radius: any tape inside this circle will be found
     even if the cursor isn't exactly on it.

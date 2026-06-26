@@ -20,6 +20,7 @@ Keys
   f            toggle fullscreen
 """
 import time
+from typing import Any
 
 import cv2
 import numpy as np
@@ -37,7 +38,8 @@ WINDOW = "Spell Casting Station"
 
 
 class App:
-    """The wand spell-casting application: camera, tracking, UI, and effects.
+    """
+    The wand spell-casting application: camera, tracking, UI, and effects.
 
     Wires together the tracker, gesture capture, recogniser, and effect
     controller from config, then runs the OpenCV capture/render/input loop.
@@ -101,13 +103,14 @@ class App:
         self.banner = None              # (text, color, expire_time)
         self.last_trail = []            # keep last stroke visible briefly
         self.last_trail_until = 0.0
-        self.mouse = {"pos": None, "down": False}
+        self.mouse: dict[str, Any] = {"pos": None, "down": False}
         self._fps = 0.0
         self._fps_t = time.time()
         self._fps_n = 0
 
     def _window_size(self) -> tuple[int, int]:
-        """Current OpenCV window image size in screen pixels.
+        """
+        Current OpenCV window image size in screen pixels.
 
         Returns:
             - The (width, height) of the window, falling back to the configured
@@ -130,7 +133,8 @@ class App:
     # -- input sources ------------------------------------------------------
     def _on_mouse(self, event: int, x: int, y: int, flags: int,
                   _param: object) -> None:
-        """OpenCV mouse callback tracking button state and cursor position.
+        """
+        OpenCV mouse callback tracking button state and cursor position.
 
         Parameters:
             - event: The OpenCV mouse event code.
@@ -147,7 +151,8 @@ class App:
 
     def _get_tip(self, frame: np.ndarray,
                  now: float) -> tuple[float, float] | None:
-        """Get the tip position from the mouse (test mode) or the tracker.
+        """
+        Get the tip position from the mouse (test mode) or the tracker.
 
         Parameters:
             - frame: The current frame, used for display→frame scaling.
@@ -218,7 +223,8 @@ class App:
 
     def _handle_stroke(self, stroke: list[tuple[float, float]],
                        now: float) -> None:
-        """Record or recognise a completed stroke and set the feedback banner.
+        """
+        Record or recognise a completed stroke and set the feedback banner.
 
         Parameters:
             - stroke: The completed gesture as an ordered list of points.
@@ -240,6 +246,7 @@ class App:
         name, score = self.recognizer.recognize(stroke)
         if name and score >= config.MIN_SCORE:
             spell = spellbook.get(name)
+            assert spell is not None
             self.effects.trigger(spell)
             self.banner = (f"{spell['name']}  ({score:.2f})",
                            (80, 220, 255), now + 1.8)
@@ -250,7 +257,8 @@ class App:
     # -- rendering ----------------------------------------------------------
     def _render(self, frame: np.ndarray, tip: tuple[float, float] | None,
                 now: float) -> np.ndarray:
-        """Compose the display canvas: backdrop, trail, markers, and overlays.
+        """
+        Compose the display canvas: backdrop, trail, markers, and overlays.
 
         Parameters:
             - frame: The current camera frame.
@@ -302,7 +310,8 @@ class App:
         return canvas
 
     def _update_fps(self, now: float) -> None:
-        """Update the rolling FPS estimate.
+        """
+        Update the rolling FPS estimate.
 
         Parameters:
             - now: The current timestamp in seconds.
@@ -314,7 +323,8 @@ class App:
 
     # -- keyboard -----------------------------------------------------------
     def _handle_keys(self, key: int) -> bool:
-        """Dispatch a single keypress to its action.
+        """
+        Dispatch a single keypress to its action.
 
         Parameters:
             - key: The key code from cv2.waitKey (masked to 8 bits).
@@ -368,7 +378,8 @@ class App:
         return True
 
     def _apply_calibration(self, result: dict | None, now: float) -> None:
-        """Apply a finished colour-training result to the tracker and save it.
+        """
+        Apply a finished colour-training result to the tracker and save it.
 
         Parameters:
             - result: The calibrator result dict, or None if training failed.
@@ -408,7 +419,8 @@ class App:
                        (120, 255, 120), now + 2.5)
 
     def _nudge_floor(self, delta: int) -> None:
-        """In colour mode adjust the brightness (V) floor; else the threshold.
+        """
+        In colour mode adjust the brightness (V) floor; else the threshold.
 
         Raising the V floor is the quickest way to drop a passively-lit
         background (a shirt) while keeping the bright wand tip.
@@ -425,9 +437,10 @@ class App:
             self.tracker.threshold = max(0, min(255, self.tracker.threshold + delta))
 
     def _display_to_frame(self, dx: int, dy: int) -> tuple[int, int]:
-        """Convert OpenCV mouse (screen) coords to frame pixel coords.
+        """
+        Convert OpenCV mouse (screen) coords to frame pixel coords.
 
-        Mouse callback returns screen-space pixels.  The canvas (1920×1080) is
+        Mouse callback returns screen-space pixels.  The canvas (1920x1080) is
         scaled by OpenCV to fill whatever the actual window size is, so we must
         map through the real window rect rather than assuming the canvas fills
         the screen 1:1.
@@ -473,6 +486,7 @@ class App:
 
         h, s, v = self.tracker.sample_hsv(self.current_frame, fx, fy)
         loc = self.tracker.last_sample_loc
+        assert loc is not None
         print(f"[calibrate] cursor=({fx},{fy})  "
               f"snapped to=({loc[0]},{loc[1]})  HSV={h},{s},{v}")
         lo = tuple(int(x) for x in self.tracker.hsv_lower)
@@ -483,6 +497,7 @@ class App:
         # Measure the blob at the sampled point through the full tracker pipeline.
         area, blob_min, blob_max = self._measure_blob_at(self.current_frame, fx, fy)
         if area is not None:
+            assert blob_min is not None and blob_max is not None
             self.tracker.min_area = blob_min
             self.tracker.max_area = blob_max
             calibrate.save_profile(config.COLOR_PROFILE_FILE, lo, hi, blob_min, blob_max)
@@ -501,7 +516,8 @@ class App:
 
     def _measure_blob_at(self, frame: np.ndarray, fx: int, fy: int
                          ) -> tuple[int | None, int | None, int | None]:
-        """Apply current gate + tracker morphology and measure the blob at (fx,fy).
+        """
+        Apply current gate + tracker morphology and measure the blob at (fx,fy).
 
         Parameters:
             - frame: The current BGR frame.
@@ -523,8 +539,10 @@ class App:
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
         if self.tracker.border_crop:
             c = self.tracker.border_crop
-            mask[:c, :] = 0;  mask[-c:, :] = 0
-            mask[:, :c] = 0;  mask[:, -c:] = 0
+            mask[:c, :] = 0
+            mask[-c:, :] = 0
+            mask[:, :c] = 0
+            mask[:, -c:] = 0
 
         n, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, 8)
         if n <= 1:
@@ -546,7 +564,7 @@ class App:
                 return None, None, None
 
         area = int(stats[lbl, cv2.CC_STAT_AREA])
-        # 30 % below and 5× above the observed size gives headroom for distance
+        # 30 % below and 5x above the observed size gives headroom for distance
         # variation while still excluding large false positives.
         blob_min = max(5, int(area * 0.30))
         blob_max = int(area * 5)

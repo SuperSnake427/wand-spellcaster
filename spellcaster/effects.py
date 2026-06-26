@@ -29,7 +29,8 @@ _ASSETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 class EffectController:
-    """Plays spell sounds and drives the light/blender/Apple TV hardware.
+    """
+    Plays spell sounds and drives the light/blender/Apple TV hardware.
 
     Parameters:
         - use_gpio: If True, initialise the gpiozero relay outputs (Raspberry
@@ -82,7 +83,8 @@ class EffectController:
     # -----------------------------------------------------------------------
 
     def trigger(self, spell: dict) -> None:
-        """Play the spell's sound and run its hardware effect.
+        """
+        Play the spell's sound and run its hardware effect.
 
         Parameters:
             - spell: A spell dict with "name", "key", and "effect" entries.
@@ -212,7 +214,8 @@ class EffectController:
         self._kasa_set(1, False, track=False)
 
     def _run_kasa2_pulse(self, seconds: float) -> None:
-        """Turn the blender (plug 2) on for a fixed duration, then off.
+        """
+        Turn the blender (plug 2) on for a fixed duration, then off.
 
         Parameters:
             - seconds: How long to run the blender.
@@ -246,7 +249,8 @@ class EffectController:
         self._prev_state = dict(self._state)
 
     def _kasa_set(self, num: int, on: bool, track: bool = True) -> None:
-        """Switch a Kasa plug, optionally recording the new stable state.
+        """
+        Switch a Kasa plug, optionally recording the new stable state.
 
         Parameters:
             - num: Which plug (1 = light, 2 = blender).
@@ -262,7 +266,8 @@ class EffectController:
             self._state[f"kasa{num}"] = on
 
     def _appletv_do(self, action: str) -> None:
-        """Power the Apple TV on or off and record the state.
+        """
+        Power the Apple TV on or off and record the state.
 
         Parameters:
             - action: "on" to wake the Apple TV, anything else to sleep it.
@@ -278,7 +283,8 @@ class EffectController:
             self._state["appletv"] = False
 
     def _play_sound(self, key: str) -> None:
-        """Play assets/<key>.wav via aplay, falling back to a terminal bell.
+        """
+        Play assets/<key>.wav via aplay, falling back to a terminal bell.
 
         Parameters:
             - key: The spell key naming the WAV file to play.

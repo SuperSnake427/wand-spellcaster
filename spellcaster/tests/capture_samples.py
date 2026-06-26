@@ -18,14 +18,15 @@ wand frame so you can see what colour range to target in config.py.
 import os
 import sys
 import time
+
 import cv2
 import numpy as np
 
 # Allow flat imports (camera, config) when run from the tests/ subfolder.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from camera import Camera
 import config
+from camera import Camera
 
 N = 3           # frames to capture per phase
 BRIGHTEST_PCT = 2  # analyse the top-N% pixels by brightness
@@ -33,7 +34,8 @@ BRIGHTEST_PCT = 2  # analyse the top-N% pixels by brightness
 
 def hsv_stats(frame: np.ndarray
               ) -> tuple[tuple[int, int, int], np.ndarray]:
-    """Compute median HSV of the brightest region of a frame.
+    """
+    Compute median HSV of the brightest region of a frame.
 
     Parameters:
         - frame: A BGR frame.
@@ -54,7 +56,8 @@ def hsv_stats(frame: np.ndarray
 
 def annotate(frame: np.ndarray, label: str,
              stats: tuple[int, int, int] | None = None) -> np.ndarray:
-    """Draw a label (and optional HSV stats) onto a copy of a frame.
+    """
+    Draw a label (and optional HSV stats) onto a copy of a frame.
 
     Parameters:
         - frame: The BGR frame to annotate.
@@ -95,6 +98,8 @@ for i in range(N):
     for _ in range(5):          # discard a few to let AGC settle
         cam.read()
     frame = cam.read()
+    if frame is None:
+        continue
     bg_frames.append(frame)
     path = f"bg_{i}.png"
     cv2.imwrite(path, annotate(frame, f"background {i}"))
@@ -111,6 +116,8 @@ for i in range(N):
     for _ in range(5):
         cam.read()
     frame = cam.read()
+    if frame is None:
+        continue
     stats, _ = hsv_stats(frame)
     wand_frames.append((frame, stats))
     path = f"wand_{i}.png"
@@ -129,7 +136,7 @@ for i, (_, (h, s, v)) in enumerate(wand_frames):
 hs = [s[0] for _, s in wand_frames]
 ss = [s[1] for _, s in wand_frames]
 vs = [s[2] for _, s in wand_frames]
-print(f"\nSuggested HSV gate (with ±15 H padding, loose S/V):")
+print("\nSuggested HSV gate (with ±15 H padding, loose S/V):")
 print(f"  HSV_LOWER = ({max(0, min(hs)-15)}, {max(20, min(ss)-40)}, {max(50, min(vs)-60)})")
 print(f"  HSV_UPPER = ({min(179, max(hs)+15)}, 255, 255)")
 print("\nDone. Open the .png files to inspect the captured frames.")

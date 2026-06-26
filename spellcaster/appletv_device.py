@@ -26,7 +26,8 @@ CACHED_STATE_FILE = os.path.expanduser("~/.pyatv.conf")
 
 
 class AppleTVDevice(AsyncDeviceThread):
-    """Controls one Apple TV via pyatv Companion protocol.
+    """
+    Controls one Apple TV via pyatv Companion protocol.
 
     Parameters:
         - ip: The Apple TV's IP address on the local network.
@@ -67,7 +68,8 @@ class AppleTVDevice(AsyncDeviceThread):
     # -- async implementations ----------------------------------------------
 
     async def _connect(self) -> None:
-        """Scan for the Apple TV, inject credentials, and connect.
+        """
+        Scan for the Apple TV, inject credentials, and connect.
 
         Falls back to cached AirPlay settings if Companion discovery or
         connection fails. Sets ``available`` to True on success.
@@ -119,7 +121,8 @@ class AppleTVDevice(AsyncDeviceThread):
 
     async def _connect_airplay_fallback(
             self, loop: asyncio.AbstractEventLoop) -> None:
-        """Try cached AirPlay settings when live discovery/Companion fails.
+        """
+        Try cached AirPlay settings when live discovery/Companion fails.
 
         Parameters:
             - loop: The running event loop to connect on.
@@ -136,7 +139,7 @@ class AppleTVDevice(AsyncDeviceThread):
             return
 
         try:
-            conf = AppleTV(ipaddress.ip_address(self.ip), "Apple TV")
+            conf = AppleTV(ipaddress.IPv4Address(self.ip), "Apple TV")
             conf.add_service(
                 AirPlayService(cached["identifier"], credentials=cached["credentials"])
             )
@@ -148,7 +151,8 @@ class AppleTVDevice(AsyncDeviceThread):
             print(f"[appletv] {self.ip}: AirPlay fallback failed ({exc})")
 
     async def _async_power(self, on: bool) -> None:
-        """Coroutine that powers the Apple TV on or off.
+        """
+        Coroutine that powers the Apple TV on or off.
 
         Parameters:
             - on: True to wake/turn on, False to put to sleep.
@@ -163,7 +167,8 @@ class AppleTVDevice(AsyncDeviceThread):
             print(f"[appletv] power {action}: {exc}")
 
     async def _async_remote(self, button: str) -> None:
-        """Coroutine that presses a remote-control button.
+        """
+        Coroutine that presses a remote-control button.
 
         Parameters:
             - button: The remote_control method name to invoke (e.g. "menu").
@@ -175,7 +180,8 @@ class AppleTVDevice(AsyncDeviceThread):
             print(f"[appletv] remote {button}: {exc}")
 
     async def _maybe_await(self, value: Any) -> Any:
-        """Await ``value`` if it is awaitable, otherwise return it as-is.
+        """
+        Await ``value`` if it is awaitable, otherwise return it as-is.
 
         Parameters:
             - value: A result that may or may not be a coroutine/awaitable.
@@ -189,7 +195,8 @@ class AppleTVDevice(AsyncDeviceThread):
 
     @staticmethod
     def _load_credentials(path: str) -> dict:
-        """Load paired credentials from a JSON file.
+        """
+        Load paired credentials from a JSON file.
 
         Parameters:
             - path: Path to the credentials file.
@@ -208,7 +215,8 @@ class AppleTVDevice(AsyncDeviceThread):
 
     @staticmethod
     def _load_airplay_cache() -> dict | None:
-        """Read cached AirPlay identifier/credentials from ~/.pyatv.conf.
+        """
+        Read cached AirPlay identifier/credentials from ~/.pyatv.conf.
 
         Returns:
             - A dict with "identifier" and "credentials" for the first device

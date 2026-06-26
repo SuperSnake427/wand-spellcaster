@@ -1,11 +1,12 @@
 # Tooling config for the spellcaster package.
 #
-#   ruff check .      # lint
-#   ruff format .     # (optional) auto-format
-#   mypy .            # type-check
+#   uv run ruff check .   # lint
+#   uv run ruff format .  # (optional) auto-format
+#   uv run ty check .     # type-check
 #
-# Docstrings follow a custom Parameters:/Returns: format, so ruff's pydocstyle
-# ("D") rules are intentionally NOT enabled — they would flag the house style.
+# Docstrings use a custom Parameters:/Returns: format with the summary on the
+# second line (pydocstyle D213). Other "D" rules stay off — they'd flag the
+# house bullet style.
 
 [project]
 name = "spellcaster"
@@ -21,35 +22,59 @@ dependencies = [
     "pyatv>=0.14",
 ]
 
-[project.optional-dependencies]
-# Raspberry Pi extras (preinstalled system-wide on Raspberry Pi OS).
-pi = ["gpiozero", "picamera2"]
-# Developer tooling used by CI.
-dev = ["ruff", "mypy", "pytest"]
+# gpiozero + picamera2 are intentionally NOT dependencies: on the Pi they're
+# system packages (apt install python3-picamera2; gpiozero ships with Pi OS),
+# and picamera2's python-prctl dep only builds on Linux — listing them breaks
+# `uv sync` on a Mac/Windows dev box. Dev tools live in [dependency-groups].
 
 [tool.ruff]
-target-version = "py310"
-line-length = 100
+line-length = 120
+indent-width = 4
+target-version = 'py313'
 extend-exclude = [".venv", "__pycache__"]
+
+[tool.ruff.format]
+docstring-code-format = true    # Format code blocks in docstrings
+indent-style = 'space'
+skip-magic-trailing-comma = false
+line-ending = 'auto'
+docstring-code-line-length = 120
 
 [tool.ruff.lint]
 # E/W pycodestyle, F pyflakes, I import-sorting, UP pyupgrade, B bugbear.
-select = ["E", "W", "F", "I", "UP", "B"]
+select = ['E', 'F', 'I', 'UP', 'B', 'A', 'C4', 'TID', 'NPY', 'RUF']
+extend-select = ['D213']
 ignore = [
     "E501",   # line length is handled by the formatter, not enforced hard
     "E741",   # allow short names like l/s/v that match the domain (HSV, etc.)
 ]
+fixable = ['ALL']
+unfixable = []
 
 [tool.ruff.lint.per-file-ignores]
 # Test/diagnostic scripts intentionally run module-level code after a sys.path
 # shim, so imports aren't all at the top of the file.
 "tests/*.py" = ["E402"]
 
-[tool.mypy]
-python_version = "3.10"
-# Third-party deps (OpenCV, pyatv, python-kasa, gpiozero, picamera2) ship no
-# type stubs; don't error on their missing types.
-ignore_missing_imports = true
-check_untyped_defs = true
-warn_redundant_casts = true
-warn_unused_ignores = true
+[tool.ruff.lint.pydocstyle]
+convention = 'numpy'
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "single"
+
+[tool.ty.environment]
+python-version = "3.10"
+
+[tool.ty.rules]
+# OpenCV/NumPy ship strict, frequently-inaccurate type stubs; their overload
+# errors are false positives on correct ndarray calls.
+no-matching-overload = "ignore"
+# gpiozero + picamera2 are Pi-only and intentionally not installed off-Pi
+# (they are lazy-imported inside try/except).
+unresolved-import = "ignore"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.20",
+    "ty>=0.0.54",
+]

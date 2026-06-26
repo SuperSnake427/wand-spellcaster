@@ -7,43 +7,24 @@ on:
 jobs:
   lint-and-typecheck:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Test the declared floor (3.10) and a current release.
-        python-version: ["3.10", "3.13"]
-
     defaults:
       run:
         working-directory: spellcaster
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          enable-cache: true
 
-      - name: Install dev tooling
-        # ruff + mypy only — they analyse statically and don't need the heavy
-        # runtime deps (OpenCV/pyatv/etc.), which mypy ignores via
-        # ignore_missing_imports in pyproject.toml.
-        run: pip install ruff mypy pytest
+      - name: Sync (runtime deps + dev tools)
+        # gpiozero/picamera2 are Pi-only and intentionally not installed; ty's
+        # config ignores their unresolved imports.
+        run: uv sync
 
       - name: Ruff (lint)
-        run: ruff check .
+        run: uv run ruff check .
 
-      - name: Mypy (type-check)
-        run: mypy .
-
-      - name: Pytest
-        # No automated tests yet — exit code 5 means "nothing collected", which
-        # we treat as success so CI stays green until tests are added.
-        run: |
-          pytest -q || ec=$?
-          if [ "${ec:-0}" = "5" ]; then
-            echo "No tests collected yet — skipping."
-            exit 0
-          fi
-          exit "${ec:-0}"
+      - name: ty (type-check)
+        run: uv run ty check .

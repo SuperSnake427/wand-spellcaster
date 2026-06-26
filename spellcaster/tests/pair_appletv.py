@@ -31,7 +31,8 @@ except ImportError:
 
 
 async def main(ip: str) -> None:
-    """Pair with the Apple TV via Companion and save the credentials.
+    """
+    Pair with the Apple TV via Companion and save the credentials.
 
     Parameters:
         - ip: The Apple TV's IP address to scan for and pair with.
@@ -65,7 +66,9 @@ async def main(ip: str) -> None:
     await pairing.finish()
 
     if pairing.has_paired:
-        creds = conf.get_service(Protocol.Companion).credentials
+        svc = conf.get_service(Protocol.Companion)
+        assert svc is not None
+        creds = svc.credentials
         data = {}
         if os.path.exists(CREDENTIALS_FILE):
             with open(CREDENTIALS_FILE) as f:

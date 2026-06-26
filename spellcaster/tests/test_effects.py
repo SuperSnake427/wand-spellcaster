@@ -16,11 +16,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import config
 from effects import EffectController
-from spellbook import SPELLS, get as get_spell
+from spellbook import SPELLS
+from spellbook import get as get_spell
 
 
 def print_banner(spell: dict, index: int, total: int) -> None:
-    """Print a header describing the spell about to be tested.
+    """
+    Print a header describing the spell about to be tested.
 
     Parameters:
         - spell: The spell dict being tested.
@@ -34,7 +36,8 @@ def print_banner(spell: dict, index: int, total: int) -> None:
 
 
 def run_spell(effects: EffectController, spell: dict) -> None:
-    """Trigger one spell's sound and hardware effect.
+    """
+    Trigger one spell's sound and hardware effect.
 
     Parameters:
         - effects: The effect controller to dispatch through.

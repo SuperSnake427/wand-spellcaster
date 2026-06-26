@@ -17,7 +17,8 @@ from typing import Any
 
 
 class AsyncDeviceThread:
-    """Owns a private asyncio event loop on a daemon thread.
+    """
+    Owns a private asyncio event loop on a daemon thread.
 
     Parameters:
         - name: Label used for the thread name and log messages.
@@ -59,7 +60,8 @@ class AsyncDeviceThread:
 
     # -- shared lifecycle ---------------------------------------------------
     def _submit(self, coro: Coroutine[Any, Any, None]) -> None:
-        """Schedule a coroutine on the device loop if it is available.
+        """
+        Schedule a coroutine on the device loop if it is available.
 
         Parameters:
             - coro: The coroutine to run. It is closed and skipped with a

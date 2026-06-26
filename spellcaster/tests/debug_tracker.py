@@ -14,15 +14,16 @@ Hold the wand in frame when prompted. Saves:
 import os
 import sys
 import time
+
 import cv2
 import numpy as np
 
 # Allow flat imports (camera, tracker, config) when run from the tests/ subfolder.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import config
 from camera import Camera
 from tracker import WandTracker
-import config
 
 N = 3
 
@@ -52,7 +53,8 @@ print(f"Blob area: {tracker.min_area}..{tracker.max_area}")
 
 
 def drain(n: int = 8) -> None:
-    """Discard a few frames so the next read is fresh.
+    """
+    Discard a few frames so the next read is fresh.
 
     Parameters:
         - n: The number of frames to read and throw away (default 8).
@@ -64,7 +66,8 @@ def drain(n: int = 8) -> None:
 def annotate_blobs(frame: np.ndarray, mask: np.ndarray,
                    chosen_tip: tuple[float, float] | None,
                    label: str) -> np.ndarray:
-    """Draw every blob on the frame and highlight the chosen one.
+    """
+    Draw every blob on the frame and highlight the chosen one.
 
     Parameters:
         - frame: The BGR frame to annotate.
@@ -111,7 +114,7 @@ print("Press ENTER, then stay still for ~3 s to warm up the motion gate...")
 input()
 
 bg_frame = None
-for i in range(200):          # feed MOG2 ~3 s worth at 60 fps
+for _ in range(200):          # feed MOG2 ~3 s worth at 60 fps
     f = cam.read()
     if f is not None:
         tracker.find_tip(f)   # feeds MOG2 without using the result
@@ -130,6 +133,8 @@ input()
 for i in range(N):
     drain()
     frame = cam.read()
+    if frame is None:
+        continue
     tip = tracker.find_tip(frame)
     mask = tracker.last_mask
 

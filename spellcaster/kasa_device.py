@@ -16,7 +16,8 @@ CONNECT_TIMEOUT = 6.0   # seconds to wait for initial connect + turn-off
 
 
 class KasaDevice(AsyncDeviceThread):
-    """Controls one Kasa smart plug asynchronously.
+    """
+    Controls one Kasa smart plug asynchronously.
 
     Parameters:
         - ip: The plug's IP address on the local network.
@@ -46,7 +47,8 @@ class KasaDevice(AsyncDeviceThread):
         self._submit(self._async_toggle())
 
     def pulse(self, seconds: float) -> None:
-        """Turn on for a fixed duration then off -- non-blocking.
+        """
+        Turn on for a fixed duration then off -- non-blocking.
 
         Parameters:
             - seconds: How long to stay on before turning off.
@@ -103,7 +105,8 @@ class KasaDevice(AsyncDeviceThread):
             print(f"[kasa] {self.name} toggle: {exc}")
 
     async def _async_pulse(self, seconds: float) -> None:
-        """Coroutine that turns on, waits, then turns off.
+        """
+        Coroutine that turns on, waits, then turns off.
 
         Parameters:
             - seconds: How long to stay on before turning off.

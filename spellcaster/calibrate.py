@@ -30,7 +30,8 @@ CAPTURE_FG = "cap_fg"
 
 
 class ColorCalibrator:
-    """State machine that learns the wand-tip HSV gate by light off/on diff.
+    """
+    State machine that learns the wand-tip HSV gate by light off/on diff.
 
     Parameters:
         - countdown: Seconds of count-in before each capture phase
@@ -67,7 +68,8 @@ class ColorCalibrator:
         return self.state != IDLE
 
     def start(self, now: float) -> None:
-        """Begin a calibration run, resetting all accumulators.
+        """
+        Begin a calibration run, resetting all accumulators.
 
         Parameters:
             - now: The current timestamp in seconds.
@@ -86,7 +88,8 @@ class ColorCalibrator:
 
     # -- per-frame driver ---------------------------------------------------
     def update(self, frame: np.ndarray, now: float) -> dict | None:
-        """Advance the state machine by one frame.
+        """
+        Advance the state machine by one frame.
 
         Parameters:
             - frame: The current BGR frame.
@@ -130,7 +133,8 @@ class ColorCalibrator:
 
     # -- helpers ------------------------------------------------------------
     def _enter(self, state: str, now: float) -> None:
-        """Transition to a new phase and reset its start time.
+        """
+        Transition to a new phase and reset its start time.
 
         Parameters:
             - state: The phase constant to enter.
@@ -140,7 +144,8 @@ class ColorCalibrator:
         self.phase_start = now
 
     def _count_in(self, elapsed: float) -> int:
-        """Countdown number to show for the current phase.
+        """
+        Countdown number to show for the current phase.
 
         Parameters:
             - elapsed: Seconds elapsed in the current phase.
@@ -152,7 +157,8 @@ class ColorCalibrator:
 
     def _info(self, text: str, done: bool = False, result: dict | None = None,
               progress: float | None = None) -> dict:
-        """Build the overlay info dict returned each frame.
+        """
+        Build the overlay info dict returned each frame.
 
         Parameters:
             - text: The status text to display.
@@ -167,7 +173,8 @@ class ColorCalibrator:
                 "progress": progress}
 
     def _gray(self, frame: np.ndarray) -> np.ndarray:
-        """Convert a frame to a blurred grayscale image.
+        """
+        Convert a frame to a blurred grayscale image.
 
         Parameters:
             - frame: A BGR frame.
@@ -179,7 +186,8 @@ class ColorCalibrator:
         return cv2.GaussianBlur(g, (5, 5), 0)
 
     def _accum_bg(self, frame: np.ndarray) -> None:
-        """Accumulate one frame into the running background average.
+        """
+        Accumulate one frame into the running background average.
 
         Parameters:
             - frame: A light-off BGR frame.
@@ -194,10 +202,12 @@ class ColorCalibrator:
 
     def _finish_bg(self) -> None:
         """Finalise the averaged background into ``bg_gray``."""
+        assert self._bg_sum is not None  # populated during the CAPTURE_BG phase
         self.bg_gray = (self._bg_sum / max(1, self._bg_n)).astype(np.uint8)
 
     def _accum_fg(self, frame: np.ndarray) -> None:
-        """Collect lit-tip HSV samples from one light-on frame.
+        """
+        Collect lit-tip HSV samples from one light-on frame.
 
         Keeps only small changed-and-brighter blobs (the tape tip) so the
         sweeping wand body and UV-lit background don't contaminate the sample.
@@ -238,7 +248,8 @@ class ColorCalibrator:
         self._samples.append(pix)
 
     def _n_samples(self) -> int:
-        """Total number of LED pixels collected so far.
+        """
+        Total number of LED pixels collected so far.
 
         Returns:
             - The running count of sampled pixels across all frames.
@@ -246,7 +257,8 @@ class ColorCalibrator:
         return sum(len(s) for s in self._samples)
 
     def _compute(self) -> dict | None:
-        """Turn collected LED pixels into an HSV gate + blob size limits.
+        """
+        Turn collected LED pixels into an HSV gate + blob size limits.
 
         Returns:
             - A result dict with "lower"/"upper" HSV bounds, sample count, and
@@ -265,7 +277,7 @@ class ColorCalibrator:
             blob_median = int(np.median(sizes))
             p5  = int(np.percentile(sizes,  5))
             p95 = int(np.percentile(sizes, 95))
-            # Give 40% below the smallest observed and 2.5× above the largest,
+            # Give 40% below the smallest observed and 2.5x above the largest,
             # so the wand can move a bit closer or farther without dropping out,
             # while still rejecting large false positives.
             blob_min = max(5, int(p5 * 0.4))
@@ -277,7 +289,7 @@ class ColorCalibrator:
             # Blown-out / near-white emitter: hue is meaningless (S≈0).
             v_lo = int(max(180, np.percentile(s[:, 2], 10) - 20))
             return {"lower": (0, 0, v_lo), "upper": (179, 60, 255),
-                    "n": int(len(s)),
+                    "n": len(s),
                     "blob_min": blob_min, "blob_max": blob_max,
                     "blob_median": blob_median}
 
@@ -296,16 +308,17 @@ class ColorCalibrator:
         v_lo = int(max(60, np.percentile(s[:, 2], 10) - 25))
 
         return {"lower": (h_lo, s_lo, v_lo), "upper": (h_hi, 255, 255),
-                "n": int(len(s)),
+                "n": len(s),
                 "blob_min": blob_min, "blob_max": blob_max,
                 "blob_median": blob_median}
 
 
 # -- profile persistence ----------------------------------------------------
-def save_profile(path: str, lower: tuple[int, int, int],
-                 upper: tuple[int, int, int], blob_min: int | None = None,
+def save_profile(path: str, lower: tuple[int, ...],
+                 upper: tuple[int, ...], blob_min: int | None = None,
                  blob_max: int | None = None) -> None:
-    """Write a learned HSV gate (and optional blob limits) to a JSON file.
+    """
+    Write a learned HSV gate (and optional blob limits) to a JSON file.
 
     Parameters:
         - path: The file path to write.
@@ -324,7 +337,8 @@ def save_profile(path: str, lower: tuple[int, int, int],
 
 
 def load_profile(path: str) -> dict | None:
-    """Read a saved HSV gate profile from a JSON file.
+    """
+    Read a saved HSV gate profile from a JSON file.
 
     Parameters:
         - path: The file path to read.
@@ -336,7 +350,7 @@ def load_profile(path: str) -> dict | None:
     if not os.path.exists(path):
         return None
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             d = json.load(fh)
         return {
             "lower":    tuple(d["lower"]),

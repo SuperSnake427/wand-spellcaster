@@ -18,13 +18,13 @@ import os
 
 from dollar import Recognizer, Stroke
 
-
 # ---------------------------------------------------------------------------
 # Default shape generators
 # ---------------------------------------------------------------------------
 
 def _circle(r: float = 100, n: int = 40) -> Stroke:
-    """A full circle of radius r drawn with n+1 points.
+    """
+    A full circle of radius r drawn with n+1 points.
 
     Parameters:
         - r: The circle radius (default 100).
@@ -58,7 +58,8 @@ def _triangle() -> Stroke:
 
 
 def _pentagram(r: float = 100) -> Stroke:
-    """A five-pointed star drawn in one stroke (Reparo).
+    """
+    A five-pointed star drawn in one stroke (Reparo).
 
     Parameters:
         - r: The circumscribed radius (default 100).
@@ -73,7 +74,8 @@ def _pentagram(r: float = 100) -> Stroke:
 
 
 def _down_stroke(n: int = 21) -> Stroke:
-    """A straight vertical swipe downward (Descendo).
+    """
+    A straight vertical swipe downward (Descendo).
 
     Parameters:
         - n: The number of points (default 21).
@@ -85,7 +87,8 @@ def _down_stroke(n: int = 21) -> Stroke:
 
 
 def _wave(n: int = 21) -> Stroke:
-    """A horizontal sine wave of one full period (Aguamenti).
+    """
+    A horizontal sine wave of one full period (Aguamenti).
 
     Parameters:
         - n: The number of points (default 21).
@@ -112,7 +115,8 @@ def _slash_up() -> Stroke:
 
 
 def _s_curve(n: int = 21) -> Stroke:
-    """A sinusoidal "S" from top to bottom -- a snake (Serpensortia).
+    """
+    A sinusoidal "S" from top to bottom -- a snake (Serpensortia).
 
     Parameters:
         - n: The number of points (default 21).
@@ -171,7 +175,8 @@ _BY_KEY = {s["key"]: s for s in SPELLS}
 
 
 def get(key: str) -> dict | None:
-    """Look up a spell by its key.
+    """
+    Look up a spell by its key.
 
     Parameters:
         - key: The spell key to look up.
@@ -183,7 +188,8 @@ def get(key: str) -> dict | None:
 
 
 def load_templates(recognizer: Recognizer, templates_file: str) -> dict:
-    """Populate the recogniser with default shapes + any recorded samples.
+    """
+    Populate the recogniser with default shapes + any recorded samples.
 
     Parameters:
         - recognizer: The recogniser to add templates to.
@@ -199,7 +205,7 @@ def load_templates(recognizer: Recognizer, templates_file: str) -> dict:
     recorded: dict = {}
     if os.path.exists(templates_file):
         try:
-            with open(templates_file, "r", encoding="utf-8") as fh:
+            with open(templates_file, encoding="utf-8") as fh:
                 recorded = json.load(fh)
         except Exception as exc:
             print(f"[spellbook] couldn't read {templates_file}: {exc}")
@@ -217,7 +223,8 @@ def load_templates(recognizer: Recognizer, templates_file: str) -> dict:
 
 def save_sample(templates_file: str, recorded: dict, key: str,
                 stroke: Stroke) -> None:
-    """Append one recorded stroke for a spell and persist to disk.
+    """
+    Append one recorded stroke for a spell and persist to disk.
 
     Parameters:
         - templates_file: Path to the JSON file to write.

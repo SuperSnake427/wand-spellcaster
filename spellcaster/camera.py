@@ -8,6 +8,7 @@ exact same code on the Pi 5 with the NoIR module -- no code changes needed.
 """
 import sys
 import time
+from typing import Any
 
 import cv2
 import numpy as np
@@ -20,7 +21,8 @@ except Exception:
 
 
 class Camera:
-    """A picamera2-or-OpenCV camera presenting a single ``read()`` interface.
+    """
+    A picamera2-or-OpenCV camera presenting a single ``read()`` interface.
 
     Picks the Raspberry Pi camera stack (picamera2) when available, otherwise
     falls back to an OpenCV-readable device so the same code runs on a laptop
@@ -45,8 +47,8 @@ class Camera:
         self.width = width
         self.height = height
         self.swap_rb = swap_rb
-        self._picam = None
-        self._cap = None
+        self._picam: Any = None
+        self._cap: Any = None
 
         if _HAS_PICAMERA and prefer_picamera:
             self._picam = Picamera2()
@@ -79,14 +81,15 @@ class Camera:
             actual_w = int(self._cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             actual_h = int(self._cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
             if (actual_w, actual_h) != (width, height):
-                print(f"[camera] WARNING: requested {width}×{height} "
-                      f"but got {actual_w}×{actual_h} — "
+                print(f"[camera] WARNING: requested {width}x{height} "
+                      f"but got {actual_w}x{actual_h} — "
                       f"update FRAME_WIDTH/HEIGHT in config.py to match")
             else:
-                print(f"[camera] {actual_w}×{actual_h} @ {fps}fps")
+                print(f"[camera] {actual_w}x{actual_h} @ {fps}fps")
 
     def _lock_picam(self) -> None:
-        """Freeze AE/AWB at their current settled values.
+        """
+        Freeze AE/AWB at their current settled values.
 
         Auto-exposure and auto-white-balance drift as the scene changes
         (waving the wand, moving people) and shift the HSV values the
@@ -111,7 +114,8 @@ class Camera:
             print(f"[camera] warning: could not lock AE/AWB: {exc}")
 
     def read(self) -> np.ndarray | None:
-        """Capture one frame.
+        """
+        Capture one frame.
 
         Returns:
             - One BGR frame as a numpy array, or None if the capture failed.

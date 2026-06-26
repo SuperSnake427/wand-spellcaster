@@ -20,8 +20,9 @@ import time
 # Allow flat imports (config, ...) when run from the tests/ subfolder.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import config
 from gpiozero import OutputDevice
+
+import config
 
 
 def main() -> None:
